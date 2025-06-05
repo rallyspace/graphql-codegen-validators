@@ -1,0 +1,17 @@
+{
+  "categories": {
+    "correctness": "warn",
+    "suspicious": "warn",
+    "pedantic": "off",
+    "style": "warn",
+    "nursery": "off",
+    "restriction": "off"
+  },
+  "plugins": [
+    "typescript",
+    "import",
+    "unicorn",
+    "oxc"
+  ],
+  "rules": {}
+}

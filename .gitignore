@@ -5,3 +5,8 @@ package-lock.json
 .DS_Store
 tsconfig.tsbuildinfo
 yarn-error.log
+
+# Generated test files
+test-operations/generated-*.ts
+tests/generated-*.ts
+tests/temp-*.graphql

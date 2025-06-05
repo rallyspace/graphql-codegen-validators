@@ -1,0 +1,6 @@
+dist/**
+node_modules/**
+example/**
+vitest.config.ts
+tsconfig.json
+README.md

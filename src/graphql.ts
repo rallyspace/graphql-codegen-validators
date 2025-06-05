@@ -205,9 +205,9 @@ export function isGeneratedByIntrospection(schema: GraphQLSchema): boolean {
 
 // https://spec.graphql.org/October2021/#EscapedCharacter
 const escapeMap: { [key: string]: string } = {
-  '\"': '\\\"',
+  '"': '\\\"',
   '\\': '\\\\',
-  '\/': '\\/',
+  '/': '\\/',
   '\b': '\\b',
   '\f': '\\f',
   '\n': '\\n',

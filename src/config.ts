@@ -327,4 +327,39 @@ export interface ValidationSchemaPluginConfig extends TypeScriptPluginConfig {
    * ```
    */
   directives?: DirectiveConfig
+  /**
+   * @description Generates validation schemas for GraphQL operation variables (query, mutation, subscription parameters).
+   * @default false
+   *
+   * @exampleMarkdown
+   * ```yml
+   * generates:
+   *   path/to/file.ts:
+   *     plugins:
+   *       - typescript
+   *       - graphql-codegen-validation-schema
+   *     config:
+   *       schema: zod
+   *       withOperationVariables: true
+   * ```
+   */
+  withOperationVariables?: boolean
+  /**
+   * @description Suffix for operation variable schema names.
+   * @default "VariableSchema"
+   *
+   * @exampleMarkdown
+   * ```yml
+   * generates:
+   *   path/to/file.ts:
+   *     plugins:
+   *       - typescript
+   *       - graphql-codegen-validation-schema
+   *     config:
+   *       schema: zod
+   *       withOperationVariables: true
+   *       operationVariablesSchemaSuffix: "VarsSchema"
+   * ```
+   */
+  operationVariablesSchemaSuffix?: string
 }

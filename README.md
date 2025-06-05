@@ -265,6 +265,73 @@ Uses the full path of the enum type as the default value instead of the stringif
 
 Related: https://the-guild.dev/graphql/codegen/docs/config-reference/naming-convention#namingconvention
 
+### `withOperationVariables`
+
+type: `boolean` default: `false`
+
+Generates validation schemas for GraphQL operation variables (query, mutation, subscription parameters).
+
+```yml
+generates:
+  path/to/file.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - graphql-codegen-validation-schema
+    config:
+      schema: zod
+      withOperationVariables: true
+```
+
+When enabled, the plugin will generate validation schemas for each named GraphQL operation's variables. For example, given this query:
+
+```graphql
+query Editor_StoryQuery($storyId: UUID!) {
+  story(id: $storyId) {
+    id
+    title
+  }
+}
+```
+
+It will generate:
+
+```typescript
+export function Editor_StoryQueryVariableSchema(): z.ZodObject<Properties<Editor_StoryQueryQueryVariables>> {
+  return z.object({
+    storyId: z.string()
+  });
+}
+```
+
+The generated schemas properly handle:
+- Required vs optional variables
+- Default values
+- References to existing input type schemas
+- All GraphQL scalar types
+- Enum types
+- Array types
+
+### `operationVariablesSchemaSuffix`
+
+type: `string` default: `'VariableSchema'`
+
+Suffix for operation variable schema names when `withOperationVariables` is enabled.
+
+```yml
+generates:
+  path/to/file.ts:
+    plugins:
+      - typescript-operations
+      - graphql-codegen-validation-schema
+    config:
+      schema: zod
+      withOperationVariables: true
+      operationVariablesSchemaSuffix: VarsSchema
+```
+
+This will generate schema names like `Editor_StoryQueryVarsSchema` instead of `Editor_StoryQueryVariableSchema`.
+
 ### `directives`
 
 type: `DirectiveConfig`
@@ -363,6 +430,93 @@ export function ExampleInputSchema(): z.ZodSchema<ExampleInput> {
 #### other schema
 
 Please see [example](https://github.com/Code-Hex/graphql-codegen-typescript-validation-schema/tree/main/example) directory.
+
+## Operation Variables Validation
+
+This plugin supports generating validation schemas for GraphQL operation variables (queries, mutations, subscriptions). This is useful for validating user input before sending GraphQL operations.
+
+### Basic Usage
+
+```yml
+generates:
+  path/to/types.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+  path/to/schemas.ts:
+    plugins:
+      - graphql-codegen-validation-schema
+    config:
+      schema: zod
+      importFrom: ./types
+      withOperationVariables: true
+```
+
+### Examples
+
+Given these GraphQL operations:
+
+```graphql
+query GetUser($id: ID!, $includeProfile: Boolean = false) {
+  user(id: $id) {
+    id
+    name
+    profile @include(if: $includeProfile) {
+      bio
+    }
+  }
+}
+
+mutation CreatePost($input: CreatePostInput!) {
+  createPost(input: $input) {
+    id
+    title
+  }
+}
+```
+
+The plugin will generate validation schemas like:
+
+#### Zod
+```typescript
+export function GetUserVariableSchema(): z.ZodObject<Properties<GetUserQueryVariables>> {
+  return z.object({
+    id: z.string(),
+    includeProfile: z.boolean().default(false).optional()
+  });
+}
+
+export function CreatePostVariableSchema(): z.ZodObject<Properties<CreatePostMutationVariables>> {
+  return z.object({
+    input: CreatePostInputSchema()
+  });
+}
+```
+
+#### Yup
+```typescript
+export function GetUserVariableSchema(): yup.SchemaOf<GetUserQueryVariables> {
+  return yup.object({
+    id: yup.string().defined(),
+    includeProfile: yup.boolean().default(false).optional()
+  });
+}
+
+export function CreatePostVariableSchema(): yup.SchemaOf<CreatePostMutationVariables> {
+  return yup.object({
+    input: CreatePostInputSchema().defined()
+  });
+}
+```
+
+### Features
+
+- **Type Safety**: Generated schemas reference the correct TypeScript operation variable types
+- **Smart Defaults**: Handles GraphQL default values automatically
+- **Input Type References**: Automatically references existing input type schemas
+- **Nullable/Optional Handling**: Properly distinguishes between required and optional variables
+- **All Validation Libraries**: Works with zod, yup, myzod, and valibot
+- **Configurable Naming**: Customize schema naming with `operationVariablesSchemaSuffix`
 
 ## Notes
 

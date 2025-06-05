@@ -19,6 +19,10 @@ export abstract class BaseSchemaVisitor implements SchemaVisitor {
     protected config: ValidationSchemaPluginConfig,
   ) {}
 
+  public getSchema() {
+    return this.schema;
+  }
+
   abstract importValidationSchema(): string;
 
   buildImports(): string[] {

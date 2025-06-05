@@ -2,20 +2,25 @@
   "extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
-    "incremental": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "incremental": false,
     "declaration": true,
     "noEmit": false,
     "outDir": "dist",
+    "rootDir": "src",
     "baseUrl": ".",
     "paths": {},
+    "resolveJsonModule": true,
     "types": ["node", "vitest/globals"]
   },
   "include": [
     "src",
-    "tests",
-    "example"
+    "tests"
   ],
   "exclude": [
-    "dist"
+    "dist",
+    "example",
+    "tests"
   ]
 }

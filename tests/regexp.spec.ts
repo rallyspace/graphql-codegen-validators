@@ -15,9 +15,9 @@ describe('isConvertableRegexp', () => {
       '/hello/dgimsuy',
       `/\\w+\\s/g`,
 
-      `/^[a-z]+:[\\\/]$/i`,
+      `/^[a-z]+:[\\/]$/i`,
 
-      `/^(?:\d{3}|\(\d{3}\))([-\/\.])\d{3}\\1\d{4}$/`,
+      `/^(?:d{3}|(d{3}))([-/.])d{3}\\1d{4}$/`,
     ])('%s', (maybeRegexp) => {
       expect(isConvertableRegexp(maybeRegexp)).toBeTruthy();
     });

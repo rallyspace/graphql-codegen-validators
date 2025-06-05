@@ -412,7 +412,7 @@ describe('valibot', () => {
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
-      export const PageTypeSchema = v.picklist([\'PUBLIC\', \'BASIC_AUTH\']);
+      export const PageTypeSchema = v.picklist(['PUBLIC', 'BASIC_AUTH']);
       "
     `);
   });
@@ -436,7 +436,7 @@ describe('valibot', () => {
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
-      export const PageTypeSchema = v.picklist([\'PUBLIC\', \'BASIC_AUTH\']);
+      export const PageTypeSchema = v.picklist(['PUBLIC', 'BASIC_AUTH']);
       "
     `);
   });
