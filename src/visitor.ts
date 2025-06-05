@@ -3,20 +3,18 @@ import type {
   GraphQLSchema,
   InterfaceTypeDefinitionNode,
   NameNode,
-  ObjectTypeDefinitionNode,
+  ObjectTypeDefinitionNode
 } from 'graphql';
 import type { ValidationSchemaPluginConfig } from './config.js';
 
 import { TsVisitor } from '@graphql-codegen/typescript';
-import {
-  specifiedScalarTypes,
-} from 'graphql';
+import { specifiedScalarTypes } from 'graphql';
 
 export class Visitor extends TsVisitor {
   constructor(
     private scalarDirection: 'input' | 'output' | 'both',
     private schema: GraphQLSchema,
-    private pluginConfig: ValidationSchemaPluginConfig,
+    private pluginConfig: ValidationSchemaPluginConfig
   ) {
     super(schema, pluginConfig);
   }
@@ -40,29 +38,25 @@ export class Visitor extends TsVisitor {
   public getNameNodeConverter(node: NameNode) {
     const typ = this.schema.getType(node.value);
     const astNode = typ?.astNode;
-    if (astNode === undefined || astNode === null)
-      return undefined;
+    if (astNode === undefined || astNode === null) return undefined;
 
     return {
       targetKind: astNode.kind,
-      convertName: () => this.convertName(astNode.name.value),
+      convertName: () => this.convertName(astNode.name.value)
     };
   }
 
   public getScalarType(scalarName: string): string | null {
-    if (this.scalarDirection === 'both')
-      return null;
+    if (this.scalarDirection === 'both') return null;
 
     const scalar = this.scalars[scalarName];
-    if (!scalar)
-      throw new Error(`Unknown scalar ${scalarName}`);
+    if (!scalar) throw new Error(`Unknown scalar ${scalarName}`);
 
     return scalar[this.scalarDirection];
   }
 
   public shouldEmitAsNotAllowEmptyString(name: string): boolean {
-    if (this.pluginConfig.notAllowEmptyString !== true)
-      return false;
+    if (this.pluginConfig.notAllowEmptyString !== true) return false;
 
     const typ = this.getType(name);
     if (typ?.astNode?.kind !== 'ScalarTypeDefinition' && !this.isSpecifiedScalarName(name))
@@ -74,22 +68,22 @@ export class Visitor extends TsVisitor {
 
   public buildArgumentsSchemaBlock(
     node: ObjectTypeDefinitionNode | InterfaceTypeDefinitionNode,
-    callback: (typeName: string, field: FieldDefinitionNode) => string,
+    callback: (typeName: string, field: FieldDefinitionNode) => string
   ) {
-    const fieldsWithArguments = node.fields?.filter(field => field.arguments && field.arguments.length > 0) ?? [];
-    if (fieldsWithArguments.length === 0)
-      return undefined;
+    const fieldsWithArguments =
+      node.fields?.filter((field) => field.arguments && field.arguments.length > 0) ?? [];
+    if (fieldsWithArguments.length === 0) return undefined;
 
     return fieldsWithArguments
       .map((field) => {
-        const name
-          = `${this.convertName(node.name.value)
-          + (this.config.addUnderscoreToArgsType ? '_' : '')
-          + this.convertName(field, {
+        const name = `${
+          this.convertName(node.name.value) +
+          (this.config.addUnderscoreToArgsType ? '_' : '') +
+          this.convertName(field, {
             useTypesPrefix: false,
-            useTypesSuffix: false,
+            useTypesSuffix: false
           })
-          }Args`;
+        }Args`;
 
         return callback(name, field);
       })

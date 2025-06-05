@@ -9,14 +9,10 @@ import type {
   NameNode,
   NonNullTypeNode,
   ObjectTypeDefinitionNode,
-  TypeNode,
+  TypeNode
 } from 'graphql';
 import { Graph } from 'graphlib';
-import {
-  isSpecifiedScalarType,
-  Kind,
-  visit,
-} from 'graphql';
+import { isSpecifiedScalarType, Kind, visit } from 'graphql';
 
 /**
  * Recursively unwraps a GraphQL type until it reaches the NamedType.
@@ -29,7 +25,8 @@ function getNamedType(typeNode: TypeNode): NamedTypeNode {
 }
 
 export const isListType = (typ?: TypeNode): typ is ListTypeNode => typ?.kind === Kind.LIST_TYPE;
-export const isNonNullType = (typ?: TypeNode): typ is NonNullTypeNode => typ?.kind === Kind.NON_NULL_TYPE;
+export const isNonNullType = (typ?: TypeNode): typ is NonNullTypeNode =>
+  typ?.kind === Kind.NON_NULL_TYPE;
 export const isNamedType = (typ?: TypeNode): typ is NamedTypeNode => typ?.kind === Kind.NAMED_TYPE;
 
 export const isInput = (kind: string) => kind.includes('Input');
@@ -37,20 +34,23 @@ export const isInput = (kind: string) => kind.includes('Input');
 type ObjectTypeDefinitionFn = (node: ObjectTypeDefinitionNode) => any;
 type InterfaceTypeDefinitionFn = (node: InterfaceTypeDefinitionNode) => any;
 
-export function ObjectTypeDefinitionBuilder(useObjectTypes: boolean | undefined, callback: ObjectTypeDefinitionFn): ObjectTypeDefinitionFn | undefined {
-  if (!useObjectTypes)
-    return undefined;
+export function ObjectTypeDefinitionBuilder(
+  useObjectTypes: boolean | undefined,
+  callback: ObjectTypeDefinitionFn
+): ObjectTypeDefinitionFn | undefined {
+  if (!useObjectTypes) return undefined;
   return (node) => {
-    if (/^(Query|Mutation|Subscription)$/.test(node.name.value))
-      return;
+    if (/^(Query|Mutation|Subscription)$/.test(node.name.value)) return;
 
     return callback(node);
   };
 }
 
-export function InterfaceTypeDefinitionBuilder(useInterfaceTypes: boolean | undefined, callback: InterfaceTypeDefinitionFn): InterfaceTypeDefinitionFn | undefined {
-  if (!useInterfaceTypes)
-    return undefined;
+export function InterfaceTypeDefinitionBuilder(
+  useInterfaceTypes: boolean | undefined,
+  callback: InterfaceTypeDefinitionFn
+): InterfaceTypeDefinitionFn | undefined {
+  if (!useInterfaceTypes) return undefined;
   return (node) => {
     return callback(node);
   };
@@ -64,7 +64,7 @@ export function topologicalSortAST(schema: GraphQLSchema, ast: DocumentNode): Do
     Kind.INTERFACE_TYPE_DEFINITION,
     Kind.SCALAR_TYPE_DEFINITION,
     Kind.ENUM_TYPE_DEFINITION,
-    Kind.UNION_TYPE_DEFINITION,
+    Kind.UNION_TYPE_DEFINITION
   ];
 
   visit<DocumentNode>(ast, {
@@ -83,8 +83,8 @@ export function topologicalSortAST(schema: GraphQLSchema, ast: DocumentNode): Do
               const dependency = namedTypeNode.name.value;
               const namedType = schema.getType(dependency);
               if (
-                namedType?.astNode?.kind === undefined
-                || !targetKinds.includes(namedType.astNode.kind)
+                namedType?.astNode?.kind === undefined ||
+                !targetKinds.includes(namedType.astNode.kind)
               ) {
                 return;
               }
@@ -104,14 +104,12 @@ export function topologicalSortAST(schema: GraphQLSchema, ast: DocumentNode): Do
         }
         case Kind.UNION_TYPE_DEFINITION: {
           const dependency = node.name.value;
-          if (!dependencyGraph.hasNode(dependency))
-            dependencyGraph.setNode(dependency);
+          if (!dependencyGraph.hasNode(dependency)) dependencyGraph.setNode(dependency);
 
           node.types?.forEach((type) => {
             const dependency = type.name.value;
             const typ = schema.getType(dependency);
-            if (typ?.astNode?.kind === undefined || !targetKinds.includes(typ.astNode.kind))
-              return;
+            if (typ?.astNode?.kind === undefined || !targetKinds.includes(typ.astNode.kind)) return;
 
             dependencyGraph.setEdge(node.name.value, dependency);
           });
@@ -120,7 +118,7 @@ export function topologicalSortAST(schema: GraphQLSchema, ast: DocumentNode): Do
         default:
           break;
       }
-    },
+    }
   });
 
   const sorted = topsort(dependencyGraph);
@@ -130,7 +128,7 @@ export function topologicalSortAST(schema: GraphQLSchema, ast: DocumentNode): Do
 
   // SCHEMA_DEFINITION does not have a name.
   // https://spec.graphql.org/October2021/#sec-Schema
-  const astDefinitions = ast.definitions.filter(def => def.kind !== Kind.SCHEMA_DEFINITION);
+  const astDefinitions = ast.definitions.filter((def) => def.kind !== Kind.SCHEMA_DEFINITION);
 
   astDefinitions.forEach((definition) => {
     if (hasNameField(definition) && definition.name)
@@ -152,19 +150,19 @@ export function topologicalSortAST(schema: GraphQLSchema, ast: DocumentNode): Do
 
   // Definitions that are left in the map were not included in sorted list
   // Add them to notSortedDefinitions.
-  definitionsMap.forEach(definition => notSortedDefinitions.push(definition));
+  definitionsMap.forEach((definition) => notSortedDefinitions.push(definition));
 
   const newDefinitions = [...sortedDefinitions, ...notSortedDefinitions];
 
   if (newDefinitions.length !== astDefinitions.length) {
     throw new Error(
-      `Unexpected definition length after sorting: want ${astDefinitions.length} but got ${newDefinitions.length}`,
+      `Unexpected definition length after sorting: want ${astDefinitions.length} but got ${newDefinitions.length}`
     );
   }
 
   return {
     ...ast,
-    definitions: newDefinitions as ReadonlyArray<DefinitionNode>,
+    definitions: newDefinitions as ReadonlyArray<DefinitionNode>
   };
 }
 
@@ -183,8 +181,7 @@ export function topsort(g: Graph): string[] {
   const results: Array<string> = [];
 
   function visit(node: string) {
-    if (visited.has(node))
-      return;
+    if (visited.has(node)) return;
     visited.add(node);
     // Recursively visit all predecessors of the node.
     g.predecessors(node)?.forEach(visit);
@@ -200,7 +197,7 @@ export function topsort(g: Graph): string[] {
 export function isGeneratedByIntrospection(schema: GraphQLSchema): boolean {
   return Object.entries(schema.getTypeMap())
     .filter(([name, type]) => !name.startsWith('__') && !isSpecifiedScalarType(type))
-    .every(([, type]) => type.astNode === undefined)
+    .every(([, type]) => type.astNode === undefined);
 }
 
 // https://spec.graphql.org/October2021/#EscapedCharacter
@@ -212,10 +209,10 @@ const escapeMap: { [key: string]: string } = {
   '\f': '\\f',
   '\n': '\\n',
   '\r': '\\r',
-  '\t': '\\t',
+  '\t': '\\t'
 };
 
 export function escapeGraphQLCharacters(input: string): string {
   // eslint-disable-next-line regexp/no-escape-backspace
-  return input.replace(/["\\/\f\n\r\t\b]/g, match => escapeMap[match]);
+  return input.replace(/["\\/\f\n\r\t\b]/g, (match) => escapeMap[match]);
 }

@@ -82,7 +82,7 @@ generates:
 Then the generator generates code with import statement like below.
 
 ```ts
-import { GeneratedInput } from './graphql'
+import { GeneratedInput } from './graphql';
 
 /* generates validation schema here */
 ```
@@ -110,7 +110,7 @@ generates:
 Then the generator generates code with import statement like below.
 
 ```ts
-import * as types from './graphql'
+import * as types from './graphql';
 
 /* generates validation schema here */
 ```
@@ -145,7 +145,7 @@ generates:
 Then the generator generates code with import statement like below.
 
 ```ts
-import { IGeneratedInput } from './graphql'
+import { IGeneratedInput } from './graphql';
 
 /* generates validation schema here */
 ```
@@ -172,7 +172,7 @@ generates:
 Then the generator generates code with import statement like below.
 
 ```ts
-import { GeneratedInputI } from './graphql'
+import { GeneratedInputI } from './graphql';
 
 /* generates validation schema here */
 ```
@@ -222,6 +222,7 @@ type: `string`
 Fallback scalar type for undefined scalar types in the schema not found in `scalarSchemas`.
 
 #### yup schema
+
 ```yml
 config:
   schema: yup
@@ -229,6 +230,7 @@ config:
 ```
 
 #### zod schema
+
 ```yml
 config:
   schema: zod
@@ -297,7 +299,9 @@ query Editor_StoryQuery($storyId: UUID!) {
 It will generate:
 
 ```typescript
-export function Editor_StoryQueryVariableSchema(): z.ZodObject<Properties<Editor_StoryQueryQueryVariables>> {
+export function Editor_StoryQueryVariableSchema(): z.ZodObject<
+  Properties<Editor_StoryQueryQueryVariables>
+> {
   return z.object({
     storyId: z.string()
   });
@@ -305,6 +309,7 @@ export function Editor_StoryQueryVariableSchema(): z.ZodObject<Properties<Editor
 ```
 
 The generated schemas properly handle:
+
 - Required vs optional variables
 - Default values
 - References to existing input type schemas
@@ -382,8 +387,11 @@ Then generates yup validation schema like below.
 export function ExampleInputSchema(): yup.SchemaOf<ExampleInput> {
   return yup.object({
     email: yup.string().defined().required('Hello, World!').min(50).email(),
-    message: yup.string().defined().matches(/^Hello/)
-  })
+    message: yup
+      .string()
+      .defined()
+      .matches(/^Hello/)
+  });
 }
 ```
 
@@ -423,7 +431,7 @@ export function ExampleInputSchema(): z.ZodSchema<ExampleInput> {
   return z.object({
     email: z.string().min(50).email(),
     message: z.string().regex(/^Hello/, 'message')
-  })
+  });
 }
 ```
 
@@ -478,6 +486,7 @@ mutation CreatePost($input: CreatePostInput!) {
 The plugin will generate validation schemas like:
 
 #### Zod
+
 ```typescript
 export function GetUserVariableSchema(): z.ZodObject<Properties<GetUserQueryVariables>> {
   return z.object({
@@ -494,6 +503,7 @@ export function CreatePostVariableSchema(): z.ZodObject<Properties<CreatePostMut
 ```
 
 #### Yup
+
 ```typescript
 export function GetUserVariableSchema(): yup.SchemaOf<GetUserQueryVariables> {
   return yup.object({

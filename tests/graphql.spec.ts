@@ -1,6 +1,4 @@
-import type {
-  ObjectTypeDefinitionNode,
-} from 'graphql';
+import type { ObjectTypeDefinitionNode } from 'graphql';
 import { Graph } from 'graphlib';
 import {
   buildClientSchema,
@@ -8,11 +6,17 @@ import {
   introspectionFromSchema,
   Kind,
   parse,
-  print,
+  print
 } from 'graphql';
 import dedent from 'ts-dedent';
 
-import { escapeGraphQLCharacters, isGeneratedByIntrospection, ObjectTypeDefinitionBuilder, topologicalSortAST, topsort } from '../src/graphql';
+import {
+  escapeGraphQLCharacters,
+  isGeneratedByIntrospection,
+  ObjectTypeDefinitionBuilder,
+  topologicalSortAST,
+  topsort
+} from '../src/graphql';
 
 describe('graphql', () => {
   describe('objectTypeDefinitionBuilder', () => {
@@ -27,30 +31,34 @@ describe('graphql', () => {
         ['FooQuery', true],
         ['FooMutation', true],
         ['FooSubscription', true],
-        ['Foo', true],
+        ['Foo', true]
       ])(`a node with a name of "%s" should be matched? %s`, (nodeName, nodeIsMatched) => {
         const node: ObjectTypeDefinitionNode = {
           name: {
             kind: Kind.NAME,
-            value: nodeName,
+            value: nodeName
           },
-          kind: Kind.OBJECT_TYPE_DEFINITION,
+          kind: Kind.OBJECT_TYPE_DEFINITION
         };
 
-        const objectTypeDefFn = ObjectTypeDefinitionBuilder(true, (n: ObjectTypeDefinitionNode) => n);
+        const objectTypeDefFn = ObjectTypeDefinitionBuilder(
+          true,
+          (n: ObjectTypeDefinitionNode) => n
+        );
 
         expect(objectTypeDefFn).toBeDefined();
 
-        if (nodeIsMatched)
-          expect(objectTypeDefFn?.(node)).toBe(node);
-        else
-          expect(objectTypeDefFn?.(node)).toBeUndefined();
+        if (nodeIsMatched) expect(objectTypeDefFn?.(node)).toBe(node);
+        else expect(objectTypeDefFn?.(node)).toBeUndefined();
       });
     });
 
     describe('useObjectTypes === false', () => {
       it('should not return an ObjectTypeDefinitionFn', () => {
-        const objectTypeDefFn = ObjectTypeDefinitionBuilder(false, (n: ObjectTypeDefinitionNode) => n);
+        const objectTypeDefFn = ObjectTypeDefinitionBuilder(
+          false,
+          (n: ObjectTypeDefinitionNode) => n
+        );
         expect(objectTypeDefFn).toBeUndefined();
       });
     });
@@ -81,7 +89,7 @@ describe('topsort', () => {
     g.setNode('C');
 
     const sortedNodes = topsort(g);
-    const isCorrectOrder = ['A', 'B', 'C'].every(node => sortedNodes.includes(node));
+    const isCorrectOrder = ['A', 'B', 'C'].every((node) => sortedNodes.includes(node));
     expect(isCorrectOrder).toBe(true);
   });
 
@@ -134,7 +142,7 @@ describe('topologicalSortAST', () => {
 
     const sortedSchema = getSortedSchema(schema);
 
-    const expectedSortedSchema = dedent/* GraphQL */`
+    const expectedSortedSchema = dedent/* GraphQL */ `
       input C {
         d: String
       }
@@ -174,7 +182,7 @@ describe('topologicalSortAST', () => {
 
     const sortedSchema = getSortedSchema(schema);
 
-    const expectedSortedSchema = dedent/* GraphQL */`
+    const expectedSortedSchema = dedent/* GraphQL */ `
       type C {
         d: String
       }
@@ -211,7 +219,7 @@ describe('topologicalSortAST', () => {
 
     const sortedSchema = getSortedSchema(schema);
 
-    const expectedSortedSchema = dedent/* GraphQL */`
+    const expectedSortedSchema = dedent/* GraphQL */ `
       interface Node {
         id: ID!
       }
@@ -237,7 +245,7 @@ describe('topologicalSortAST', () => {
     `;
     const sortedSchema = getSortedSchema(schema);
 
-    const expectedSortedSchema = dedent/* GraphQL */`
+    const expectedSortedSchema = dedent/* GraphQL */ `
       input A {
         b: B
       }
@@ -262,7 +270,7 @@ describe('topologicalSortAST', () => {
     `;
     const sortedSchema = getSortedSchema(schema);
 
-    const expectedSortedSchema = dedent/* GraphQL */`
+    const expectedSortedSchema = dedent/* GraphQL */ `
       input B {
         b: B
       }

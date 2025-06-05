@@ -5,19 +5,21 @@ import { Kind, valueFromASTUntyped } from 'graphql';
 import { isConvertableRegexp } from './regexp.js';
 
 export interface FormattedDirectiveConfig {
-  [directive: string]: FormattedDirectiveArguments
+  [directive: string]: FormattedDirectiveArguments;
 }
 
 export interface FormattedDirectiveArguments {
-  [argument: string]: string[] | FormattedDirectiveObjectArguments | undefined
+  [argument: string]: string[] | FormattedDirectiveObjectArguments | undefined;
 }
 
 export interface FormattedDirectiveObjectArguments {
-  [matched: string]: string[] | undefined
+  [matched: string]: string[] | undefined;
 }
 
-function isFormattedDirectiveObjectArguments(arg: FormattedDirectiveArguments[keyof FormattedDirectiveArguments]): arg is FormattedDirectiveObjectArguments {
-  return arg !== undefined && !Array.isArray(arg)
+function isFormattedDirectiveObjectArguments(
+  arg: FormattedDirectiveArguments[keyof FormattedDirectiveArguments]
+): arg is FormattedDirectiveObjectArguments {
+  return arg !== undefined && !Array.isArray(arg);
 }
 
 // ```yml
@@ -49,17 +51,15 @@ export function formatDirectiveConfig(config: DirectiveConfig): FormattedDirecti
     Object.entries(config).map(([directive, arg]) => {
       const formatted = Object.fromEntries(
         Object.entries(arg).map(([arg, val]) => {
-          if (Array.isArray(val))
-            return [arg, val];
+          if (Array.isArray(val)) return [arg, val];
 
-          if (typeof val === 'string')
-            return [arg, [val, '$1']];
+          if (typeof val === 'string') return [arg, [val, '$1']];
 
           return [arg, formatDirectiveObjectArguments(val)];
-        }),
+        })
       );
       return [directive, formatted];
-    }),
+    })
   );
 }
 
@@ -77,10 +77,11 @@ export function formatDirectiveConfig(config: DirectiveConfig): FormattedDirecti
 //   'uri': ['url', '$2'],
 //   'email': ['email'],
 // }
-export function formatDirectiveObjectArguments(args: DirectiveObjectArguments): FormattedDirectiveObjectArguments {
+export function formatDirectiveObjectArguments(
+  args: DirectiveObjectArguments
+): FormattedDirectiveObjectArguments {
   const formatted = Object.entries(args).map(([arg, val]) => {
-    if (Array.isArray(val))
-      return [arg, val];
+    if (Array.isArray(val)) return [arg, val];
 
     return [arg, [val, '$2']];
   });
@@ -109,15 +110,18 @@ export function formatDirectiveObjectArguments(args: DirectiveObjectArguments): 
 //   email: String! @required(msg: "message") @constraint(minLength: 100, format: "email")
 // }
 // ```
-export function buildApi(config: FormattedDirectiveConfig, directives: ReadonlyArray<ConstDirectiveNode>): string {
+export function buildApi(
+  config: FormattedDirectiveConfig,
+  directives: ReadonlyArray<ConstDirectiveNode>
+): string {
   return directives
-    .filter(directive => config[directive.name.value] !== undefined)
+    .filter((directive) => config[directive.name.value] !== undefined)
     .map((directive) => {
       const directiveName = directive.name.value;
       const argsConfig = config[directiveName];
       return buildApiFromDirectiveArguments(argsConfig, directive.arguments ?? []);
     })
-    .join('')
+    .join('');
 }
 
 // This function generates `[v.minLength(100), v.email()]`
@@ -142,21 +146,23 @@ export function buildApi(config: FormattedDirectiveConfig, directives: ReadonlyA
 // ```
 //
 // FIXME: v.required() is not supported yet. v.required() is classified as `Methods` and must wrap the schema. ex) `v.required(v.object({...}))`
-export function buildApiForValibot(config: FormattedDirectiveConfig, directives: ReadonlyArray<ConstDirectiveNode>): string[] {
+export function buildApiForValibot(
+  config: FormattedDirectiveConfig,
+  directives: ReadonlyArray<ConstDirectiveNode>
+): string[] {
   return directives
-    .filter(directive => config[directive.name.value] !== undefined)
+    .filter((directive) => config[directive.name.value] !== undefined)
     .map((directive) => {
       const directiveName = directive.name.value;
       const argsConfig = config[directiveName];
       const apis = _buildApiFromDirectiveArguments(argsConfig, directive.arguments ?? []);
-      return apis.map(api => `v${api}`);
+      return apis.map((api) => `v${api}`);
     })
-    .flat()
+    .flat();
 }
 
 function buildApiSchema(validationSchema: string[] | undefined, argValue: ConstValueNode): string {
-  if (!validationSchema)
-    return '';
+  if (!validationSchema) return '';
 
   const schemaApi = validationSchema[0];
   const schemaApiArgs = validationSchema.slice(1).map((templateArg) => {
@@ -166,25 +172,32 @@ function buildApiSchema(validationSchema: string[] | undefined, argValue: ConstV
   return `.${schemaApi}(${schemaApiArgs.join(', ')})`;
 }
 
-function buildApiFromDirectiveArguments(config: FormattedDirectiveArguments, args: ReadonlyArray<ConstArgumentNode>): string {
+function buildApiFromDirectiveArguments(
+  config: FormattedDirectiveArguments,
+  args: ReadonlyArray<ConstArgumentNode>
+): string {
   return _buildApiFromDirectiveArguments(config, args).join('');
 }
 
-function _buildApiFromDirectiveArguments(config: FormattedDirectiveArguments, args: ReadonlyArray<ConstArgumentNode>): string[] {
-  return args
-    .map((arg) => {
-      const argName = arg.name.value;
-      const validationSchema = config[argName];
-      if (isFormattedDirectiveObjectArguments(validationSchema))
-        return buildApiFromDirectiveObjectArguments(validationSchema, arg.value);
+function _buildApiFromDirectiveArguments(
+  config: FormattedDirectiveArguments,
+  args: ReadonlyArray<ConstArgumentNode>
+): string[] {
+  return args.map((arg) => {
+    const argName = arg.name.value;
+    const validationSchema = config[argName];
+    if (isFormattedDirectiveObjectArguments(validationSchema))
+      return buildApiFromDirectiveObjectArguments(validationSchema, arg.value);
 
-      return buildApiSchema(validationSchema, arg.value);
-    })
+    return buildApiSchema(validationSchema, arg.value);
+  });
 }
 
-function buildApiFromDirectiveObjectArguments(config: FormattedDirectiveObjectArguments, argValue: ConstValueNode): string {
-  if (argValue.kind !== Kind.STRING && argValue.kind !== Kind.ENUM)
-    return '';
+function buildApiFromDirectiveObjectArguments(
+  config: FormattedDirectiveObjectArguments,
+  argValue: ConstValueNode
+): string {
+  if (argValue.kind !== Kind.STRING && argValue.kind !== Kind.ENUM) return '';
 
   const validationSchema = config[argValue.value];
   return buildApiSchema(validationSchema, argValue);
@@ -200,34 +213,34 @@ function applyArgToApiSchemaTemplate(template: string, apiArgs: any[]): string {
       template = template.replace(placeholder, '');
       continue;
     }
-    if (template === placeholder)
-      return stringify(apiArg);
+    if (template === placeholder) return stringify(apiArg);
 
     template = template.replace(placeholder, apiArg);
   }
-  if (template !== '')
-    return stringify(template, true);
+  if (template !== '') return stringify(template, true);
 
   return template;
 }
 
 function stringify(arg: any, quoteString?: boolean): string {
-  if (Array.isArray(arg))
-    return arg.map(v => stringify(v, true)).join(',');
+  if (Array.isArray(arg)) return arg.map((v) => stringify(v, true)).join(',');
 
   if (typeof arg === 'string') {
-    if (isConvertableRegexp(arg))
-      return arg;
+    if (isConvertableRegexp(arg)) return arg;
 
-    const v = tryEval(arg)
-    if (v !== undefined)
-      arg = v
+    const v = tryEval(arg);
+    if (v !== undefined) arg = v;
 
-    if (quoteString)
-      return JSON.stringify(arg);
+    if (quoteString) return JSON.stringify(arg);
   }
 
-  if (typeof arg === 'boolean' || typeof arg === 'number' || typeof arg === 'bigint' || arg === 'undefined' || arg === null)
+  if (
+    typeof arg === 'boolean' ||
+    typeof arg === 'number' ||
+    typeof arg === 'bigint' ||
+    arg === 'undefined' ||
+    arg === null
+  )
     return `${arg}`;
 
   return JSON.stringify(arg);
@@ -235,8 +248,7 @@ function stringify(arg: any, quoteString?: boolean): string {
 
 function apiArgsFromConstValueNode(value: ConstValueNode): any[] {
   const val = valueFromASTUntyped(value);
-  if (Array.isArray(val))
-    return val;
+  if (Array.isArray(val)) return val;
 
   return [val];
 }
@@ -244,15 +256,14 @@ function apiArgsFromConstValueNode(value: ConstValueNode): any[] {
 function tryEval(maybeValidJavaScript: string): any | undefined {
   try {
     // eslint-disable-next-line no-eval
-    return eval(maybeValidJavaScript)
-  }
-  catch {
-    return undefined
+    return eval(maybeValidJavaScript);
+  } catch {
+    return undefined;
   }
 }
 
 export const exportedForTesting = {
   applyArgToApiSchemaTemplate,
   buildApiFromDirectiveObjectArguments,
-  buildApiFromDirectiveArguments,
+  buildApiFromDirectiveArguments
 };

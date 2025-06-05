@@ -7,7 +7,7 @@ const initialEmitValue = dedent(`
   export const definedNonNullAnySchema = myzod.object({});
 
 
-  `)
+  `);
 
 function removedInitialEmitValue(content: string) {
   return content.replace(initialEmitValue, '');
@@ -24,12 +24,17 @@ describe('myzod', () => {
         e: Float!
       }
     `);
-    const result = await plugin(schema, [], {
-      schema: 'myzod',
-      scalars: {
-        ID: 'string',
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'myzod',
+        scalars: {
+          ID: 'string'
+        }
       },
-    }, {});
+      {}
+    );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as myzod from 'myzod'",
@@ -47,7 +52,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('nullish', async () => {
@@ -61,12 +66,17 @@ describe('myzod', () => {
         z: String! # no defined check
       }
     `);
-    const result = await plugin(schema, [], {
-      schema: 'myzod',
-      scalars: {
-        ID: 'string',
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'myzod',
+        scalars: {
+          ID: 'string'
+        }
       },
-    }, {});
+      {}
+    );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as myzod from 'myzod'",
@@ -85,7 +95,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('array', async () => {
@@ -99,9 +109,14 @@ describe('myzod', () => {
         f: [[String]!]!
       }
     `);
-    const result = await plugin(schema, [], {
-      schema: 'myzod',
-    }, {});
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'myzod'
+      },
+      {}
+    );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export function ArrayInputSchema(): myzod.Type<ArrayInput> {
@@ -115,7 +130,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('ref input object', async () => {
@@ -130,9 +145,14 @@ describe('myzod', () => {
         a: AInput!
       }
     `);
-    const result = await plugin(schema, [], {
-      schema: 'myzod',
-    }, {});
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'myzod'
+      },
+      {}
+    );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export function AInputSchema(): myzod.Type<AInput> {
@@ -153,23 +173,33 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('ref input object w/ schemaNamespacedImportName', async () => {
     const schema = buildSchema(/* GraphQL */ `
-          input AInput {
-            b: BInput!
-          }
-          input BInput {
-            c: CInput!
-          }
-          input CInput {
-            a: AInput!
-          }
+      input AInput {
+        b: BInput!
+      }
+      input BInput {
+        c: CInput!
+      }
+      input CInput {
+        a: AInput!
+      }
     `);
-    const scalars = undefined
-    const result = await plugin(schema, [], { schema: 'myzod', scalars, importFrom: './types', schemaNamespacedImportName: 't' }, {});
+    const scalars = undefined;
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'myzod',
+        scalars,
+        importFrom: './types',
+        schemaNamespacedImportName: 't'
+      },
+      {}
+    );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export function AInputSchema(): myzod.Type<t.AInput> {
@@ -190,8 +220,8 @@ describe('myzod', () => {
         })
       }
       "
-    `)
-  })
+    `);
+  });
 
   it('nested input object', async () => {
     const schema = buildSchema(`
@@ -200,9 +230,14 @@ describe('myzod', () => {
         childrens: [NestedInput]
       }
     `);
-    const result = await plugin(schema, [], {
-      schema: 'myzod',
-    }, {});
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'myzod'
+      },
+      {}
+    );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export function NestedInputSchema(): myzod.Type<NestedInput> {
@@ -212,7 +247,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('enum', async () => {
@@ -225,9 +260,14 @@ describe('myzod', () => {
         pageType: PageType!
       }
     `);
-    const result = await plugin(schema, [], {
-      schema: 'myzod',
-    }, {});
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'myzod'
+      },
+      {}
+    );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export const PageTypeSchema = myzod.enum(PageType);
@@ -238,21 +278,31 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('enum w/ schemaNamespacedImportName', async () => {
     const schema = buildSchema(/* GraphQL */ `
-          enum PageType {
-            PUBLIC
-            BASIC_AUTH
-          }
-          input PageInput {
-            pageType: PageType!
-          }
+      enum PageType {
+        PUBLIC
+        BASIC_AUTH
+      }
+      input PageInput {
+        pageType: PageType!
+      }
     `);
-    const scalars = undefined
-    const result = await plugin(schema, [], { schema: 'myzod', scalars, importFrom: './', schemaNamespacedImportName: 't' }, {});
+    const scalars = undefined;
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'myzod',
+        scalars,
+        importFrom: './',
+        schemaNamespacedImportName: 't'
+      },
+      {}
+    );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export const PageTypeSchema = myzod.enum(t.PageType);
@@ -263,8 +313,8 @@ describe('myzod', () => {
         })
       }
       "
-    `)
-  })
+    `);
+  });
 
   it('camelcase', async () => {
     const schema = buildSchema(`
@@ -280,9 +330,14 @@ describe('myzod', () => {
 
       scalar URL # unknown scalar, should be any (definedNonNullAnySchema)
     `);
-    const result = await plugin(schema, [], {
-      schema: 'myzod',
-    }, {});
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'myzod'
+      },
+      {}
+    );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export const HttpMethodSchema = myzod.enum(HttpMethod);
@@ -294,7 +349,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with scalars', async () => {
@@ -314,10 +369,10 @@ describe('myzod', () => {
         schema: 'myzod',
         scalars: {
           Text: 'string',
-          Count: 'number',
-        },
+          Count: 'number'
+        }
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
@@ -328,7 +383,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with importFrom', async () => {
@@ -342,16 +397,16 @@ describe('myzod', () => {
       [],
       {
         schema: 'myzod',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as myzod from 'myzod'",
         "import { Say } from './types'",
       ]
-    `)
+    `);
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export function SaySchema(): myzod.Type<Say> {
@@ -360,7 +415,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with importFrom & schemaNamespacedImportName', async () => {
@@ -375,16 +430,16 @@ describe('myzod', () => {
       {
         schema: 'myzod',
         importFrom: './types',
-        schemaNamespacedImportName: 't',
+        schemaNamespacedImportName: 't'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as myzod from 'myzod'",
         "import * as t from './types'",
       ]
-    `)
+    `);
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export function SaySchema(): myzod.Type<t.Say> {
@@ -393,7 +448,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with importFrom & useTypeImports', async () => {
@@ -408,16 +463,16 @@ describe('myzod', () => {
       {
         schema: 'myzod',
         importFrom: './types',
-        useTypeImports: true,
+        useTypeImports: true
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as myzod from 'myzod'",
         "import type { Say } from './types'",
       ]
-    `)
+    `);
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export function SaySchema(): myzod.Type<Say> {
@@ -426,7 +481,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with enumsAsTypes', async () => {
@@ -441,15 +496,15 @@ describe('myzod', () => {
       [],
       {
         schema: 'myzod',
-        enumsAsTypes: true,
+        enumsAsTypes: true
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export type PageTypeSchema = myzod.literals('PUBLIC', 'BASIC_AUTH');
       "
-    `)
+    `);
   });
 
   it('with enumsAsTypes + schemaNamespacedImportName', async () => {
@@ -466,15 +521,15 @@ describe('myzod', () => {
         schema: 'myzod',
         enumsAsTypes: true,
         importFrom: './types',
-        schemaNamespacedImportName: 't',
+        schemaNamespacedImportName: 't'
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export type PageTypeSchema = myzod.literals('PUBLIC', 'BASIC_AUTH');
       "
-    `)
+    `);
   });
 
   it('with notAllowEmptyString', async () => {
@@ -494,10 +549,10 @@ describe('myzod', () => {
         schema: 'myzod',
         notAllowEmptyString: true,
         scalars: {
-          ID: 'string',
-        },
+          ID: 'string'
+        }
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
@@ -511,7 +566,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with notAllowEmptyString issue #386', async () => {
@@ -531,10 +586,10 @@ describe('myzod', () => {
         schema: 'myzod',
         notAllowEmptyString: true,
         scalars: {
-          ID: 'string',
-        },
+          ID: 'string'
+        }
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
@@ -550,7 +605,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with scalarSchemas', async () => {
@@ -570,10 +625,10 @@ describe('myzod', () => {
         schema: 'myzod',
         scalarSchemas: {
           Date: 'myzod.date()',
-          Email: 'myzod.string()', // generate the basic type. User can later extend it using `withPredicate(fn: (val: string) => boolean), errMsg?: string }`
-        },
+          Email: 'myzod.string()' // generate the basic type. User can later extend it using `withPredicate(fn: (val: string) => boolean), errMsg?: string }`
+        }
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
@@ -585,7 +640,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with defaultScalarTypeSchema', async () => {
@@ -604,11 +659,11 @@ describe('myzod', () => {
       {
         schema: 'myzod',
         scalarSchemas: {
-          Email: 'myzod.string()', // generate the basic type. User can later extend it using `withPredicate(fn: (val: string) => boolean), errMsg?: string }`
+          Email: 'myzod.string()' // generate the basic type. User can later extend it using `withPredicate(fn: (val: string) => boolean), errMsg?: string }`
         },
-        defaultScalarTypeSchema: 'myzod.string()',
+        defaultScalarTypeSchema: 'myzod.string()'
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
@@ -620,7 +675,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
   it('with typesPrefix', async () => {
     const schema = buildSchema(/* GraphQL */ `
@@ -634,16 +689,16 @@ describe('myzod', () => {
       {
         schema: 'myzod',
         typesPrefix: 'I',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as myzod from 'myzod'",
         "import { ISay } from './types'",
       ]
-    `)
+    `);
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export function ISaySchema(): myzod.Type<ISay> {
@@ -652,7 +707,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
   it('with typesSuffix', async () => {
     const schema = buildSchema(/* GraphQL */ `
@@ -666,16 +721,16 @@ describe('myzod', () => {
       {
         schema: 'myzod',
         typesSuffix: 'I',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as myzod from 'myzod'",
         "import { SayI } from './types'",
       ]
-    `)
+    `);
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
       export function SayISchema(): myzod.Type<SayI> {
@@ -684,7 +739,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
   describe('issues #19', () => {
     it('string field', async () => {
@@ -703,11 +758,11 @@ describe('myzod', () => {
           directives: {
             constraint: {
               minLength: ['min', '$1', 'Please input more than $1'],
-              maxLength: ['max', '$1', 'Please input less than $1'],
-            },
-          },
+              maxLength: ['max', '$1', 'Please input less than $1']
+            }
+          }
         },
-        {},
+        {}
       );
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
         "
@@ -717,7 +772,7 @@ describe('myzod', () => {
           })
         }
         "
-      `)
+      `);
     });
     it('not null field', async () => {
       const schema = buildSchema(/* GraphQL */ `
@@ -735,11 +790,11 @@ describe('myzod', () => {
           directives: {
             constraint: {
               minLength: ['min', '$1', 'Please input more than $1'],
-              maxLength: ['max', '$1', 'Please input less than $1'],
-            },
-          },
+              maxLength: ['max', '$1', 'Please input less than $1']
+            }
+          }
         },
-        {},
+        {}
       );
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
         "
@@ -749,7 +804,7 @@ describe('myzod', () => {
           })
         }
         "
-      `)
+      `);
     });
     it('list field', async () => {
       const schema = buildSchema(/* GraphQL */ `
@@ -767,11 +822,11 @@ describe('myzod', () => {
           directives: {
             constraint: {
               minLength: ['min', '$1', 'Please input more than $1'],
-              maxLength: ['max', '$1', 'Please input less than $1'],
-            },
-          },
+              maxLength: ['max', '$1', 'Please input less than $1']
+            }
+          }
         },
-        {},
+        {}
       );
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
         "
@@ -781,7 +836,7 @@ describe('myzod', () => {
           })
         }
         "
-      `)
+      `);
     });
   });
 
@@ -797,9 +852,9 @@ describe('myzod', () => {
         schema,
         [],
         {
-          schema: 'myzod',
+          schema: 'myzod'
         },
-        {},
+        {}
       );
       expect(result.content).not.toContain('export function UserSchema(): myzod.Type<User> {');
     });
@@ -821,9 +876,9 @@ describe('myzod', () => {
         [],
         {
           schema: 'myzod',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
         "
@@ -843,7 +898,7 @@ describe('myzod', () => {
           })
         }
         "
-      `)
+      `);
 
       for (const wantNotContain of ['Query', 'Mutation', 'Subscription'])
         expect(result.content).not.toContain(wantNotContain);
@@ -891,16 +946,16 @@ describe('myzod', () => {
           withObjectType: true,
           scalarSchemas: {
             Date: 'myzod.date()',
-            Email: 'myzod.string().email()',
+            Email: 'myzod.string().email()'
           },
           scalars: {
             ID: {
               input: 'number',
-              output: 'string',
-            },
-          },
+              output: 'string'
+            }
+          }
         },
-        {},
+        {}
       );
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
         "
@@ -931,7 +986,7 @@ describe('myzod', () => {
           })
         }
         "
-      `)
+      `);
 
       for (const wantNotContain of ['Query', 'Mutation', 'Subscription'])
         expect(result.content).not.toContain(wantNotContain);
@@ -953,9 +1008,9 @@ describe('myzod', () => {
         [],
         {
           schema: 'myzod',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
 
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
@@ -978,7 +1033,7 @@ describe('myzod', () => {
           return myzod.union([CircleSchema(), SquareSchema()])
         }
         "
-      `)
+      `);
     });
 
     it('generate union types + schemaNamespacedImportName', async () => {
@@ -999,9 +1054,9 @@ describe('myzod', () => {
           schema: 'myzod',
           withObjectType: true,
           importFrom: './types',
-          schemaNamespacedImportName: 't',
+          schemaNamespacedImportName: 't'
         },
-        {},
+        {}
       );
 
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
@@ -1024,7 +1079,7 @@ describe('myzod', () => {
           return myzod.union([CircleSchema(), SquareSchema()])
         }
         "
-      `)
+      `);
     });
 
     it('generate union types with single element', async () => {
@@ -1047,9 +1102,9 @@ describe('myzod', () => {
         [],
         {
           schema: 'myzod',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
 
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
@@ -1079,7 +1134,7 @@ describe('myzod', () => {
           })
         }
         "
-      `)
+      `);
     });
 
     it('correctly reference generated union types', async () => {
@@ -1095,9 +1150,9 @@ describe('myzod', () => {
         [],
         {
           schema: 'myzod',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
 
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
@@ -1113,7 +1168,7 @@ describe('myzod', () => {
           return CircleSchema()
         }
         "
-      `)
+      `);
     });
 
     it('generate enum union types', async () => {
@@ -1136,9 +1191,9 @@ describe('myzod', () => {
         [],
         {
           schema: 'myzod',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
 
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
@@ -1151,7 +1206,7 @@ describe('myzod', () => {
           return myzod.union([PageTypeSchema, MethodTypeSchema])
         }
         "
-      `)
+      `);
     });
 
     it('generate union types with single element, export as const', async () => {
@@ -1175,9 +1230,9 @@ describe('myzod', () => {
         {
           schema: 'myzod',
           withObjectType: true,
-          validationSchemaExportType: 'const',
+          validationSchemaExportType: 'const'
         },
-        {},
+        {}
       );
 
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
@@ -1199,7 +1254,7 @@ describe('myzod', () => {
             shape: ShapeSchema.optional().nullable()
         });
         "
-      `)
+      `);
     });
 
     it('with object arguments', async () => {
@@ -1216,10 +1271,10 @@ describe('myzod', () => {
           schema: 'myzod',
           withObjectType: true,
           scalars: {
-            Text: 'string',
-          },
+            Text: 'string'
+          }
         },
-        {},
+        {}
       );
       expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
         "
@@ -1240,7 +1295,7 @@ describe('myzod', () => {
           })
         }
         "
-      `)
+      `);
     });
 
     describe('with InterfaceType', () => {
@@ -1255,9 +1310,9 @@ describe('myzod', () => {
           schema,
           [],
           {
-            schema: 'myzod',
+            schema: 'myzod'
           },
-          {},
+          {}
         );
         expect(result.content).not.toContain('export function UserSchema(): myzod.Type<User> {');
       });
@@ -1273,9 +1328,9 @@ describe('myzod', () => {
           [],
           {
             schema: 'myzod',
-            withObjectType: true,
+            withObjectType: true
           },
-          {},
+          {}
         );
         expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
           "
@@ -1285,8 +1340,8 @@ describe('myzod', () => {
             })
           }
           "
-        `)
-        const wantNotContains = ['__typename: myzod.literal(\'Book\')'];
+        `);
+        const wantNotContains = ["__typename: myzod.literal('Book')"];
 
         for (const wantNotContain of wantNotContains)
           expect(result.content).not.toContain(wantNotContain);
@@ -1309,9 +1364,9 @@ describe('myzod', () => {
           [],
           {
             schema: 'myzod',
-            withObjectType: true,
+            withObjectType: true
           },
-          {},
+          {}
         );
         expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
           "
@@ -1329,7 +1384,7 @@ describe('myzod', () => {
             })
           }
           "
-        `)
+        `);
       });
       it('generate object type contains interface type', async () => {
         const schema = buildSchema(/* GraphQL */ `
@@ -1360,9 +1415,9 @@ describe('myzod', () => {
           [],
           {
             schema: 'myzod',
-            withObjectType: true,
+            withObjectType: true
           },
-          {},
+          {}
         );
         expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
           "
@@ -1399,7 +1454,7 @@ describe('myzod', () => {
             })
           }
           "
-        `)
+        `);
       });
     });
   });
@@ -1421,11 +1476,11 @@ describe('myzod', () => {
           constraint: {
             min: 'min',
             max: 'max',
-            startsWith: ['pattern', '/^$1/'],
-          },
-        },
+            startsWith: ['pattern', '/^$1/']
+          }
+        }
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
@@ -1436,7 +1491,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('exports as const instead of func', async () => {
@@ -1450,9 +1505,9 @@ describe('myzod', () => {
       [],
       {
         schema: 'myzod',
-        validationSchemaExportType: 'const',
+        validationSchemaExportType: 'const'
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
@@ -1460,7 +1515,7 @@ describe('myzod', () => {
           phrase: myzod.string()
       });
       "
-    `)
+    `);
   });
 
   it('generate both input & type, export as const', async () => {
@@ -1498,11 +1553,11 @@ describe('myzod', () => {
         withObjectType: true,
         scalarSchemas: {
           Date: 'myzod.date()',
-          Email: 'myzod.string().email()',
+          Email: 'myzod.string().email()'
         },
-        validationSchemaExportType: 'const',
+        validationSchemaExportType: 'const'
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
@@ -1522,7 +1577,7 @@ describe('myzod', () => {
           email: myzod.string().email()
       });
       "
-    `)
+    `);
     for (const wantNotContain of ['Query', 'Mutation', 'Subscription'])
       expect(result.content).not.toContain(wantNotContain);
   });
@@ -1550,10 +1605,10 @@ describe('myzod', () => {
       {
         schema: 'myzod',
         scalars: {
-          ID: 'string',
-        },
+          ID: 'string'
+        }
       },
-      {},
+      {}
     );
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
       "
@@ -1565,7 +1620,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with default input values', async () => {
@@ -1588,9 +1643,9 @@ describe('myzod', () => {
       [],
       {
         schema: 'myzod',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
 
     expect(removedInitialEmitValue(result.content)).toMatchInlineSnapshot(`
@@ -1608,7 +1663,7 @@ describe('myzod', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with default input values as enum types', async () => {
@@ -1631,19 +1686,23 @@ describe('myzod', () => {
       {
         schema: 'myzod',
         importFrom: './types',
-        useEnumTypeAsDefaultValue: true,
+        useEnumTypeAsDefaultValue: true
       },
-      {},
+      {}
     );
 
     expect(result.content).toContain('export const PageTypeSchema = myzod.enum(PageType)');
     expect(result.content).toContain('export function PageInputSchema(): myzod.Type<PageInput>');
 
     expect(result.content).toContain('pageType: PageTypeSchema.default(PageType.Public)');
-    expect(result.content).toContain('greeting: myzod.string().default("Hello").optional().nullable()');
+    expect(result.content).toContain(
+      'greeting: myzod.string().default("Hello").optional().nullable()'
+    );
     expect(result.content).toContain('score: myzod.number().default(100).optional().nullable()');
     expect(result.content).toContain('ratio: myzod.number().default(0.5).optional().nullable()');
-    expect(result.content).toContain('isMember: myzod.boolean().default(true).optional().nullable()');
+    expect(result.content).toContain(
+      'isMember: myzod.boolean().default(true).optional().nullable()'
+    );
   });
 
   it('with default input values as enum types with underscores', async () => {
@@ -1666,19 +1725,23 @@ describe('myzod', () => {
       {
         schema: 'myzod',
         importFrom: './types',
-        useEnumTypeAsDefaultValue: true,
+        useEnumTypeAsDefaultValue: true
       },
-      {},
+      {}
     );
 
     expect(result.content).toContain('export const PageTypeSchema = myzod.enum(PageType)');
     expect(result.content).toContain('export function PageInputSchema(): myzod.Type<PageInput>');
 
     expect(result.content).toContain('pageType: PageTypeSchema.default(PageType.Basic_Auth)');
-    expect(result.content).toContain('greeting: myzod.string().default("Hello").optional().nullable()');
+    expect(result.content).toContain(
+      'greeting: myzod.string().default("Hello").optional().nullable()'
+    );
     expect(result.content).toContain('score: myzod.number().default(100).optional().nullable()');
     expect(result.content).toContain('ratio: myzod.number().default(0.5).optional().nullable()');
-    expect(result.content).toContain('isMember: myzod.boolean().default(true).optional().nullable()');
+    expect(result.content).toContain(
+      'isMember: myzod.boolean().default(true).optional().nullable()'
+    );
   });
 
   it('with default input values as enum types with no underscores', async () => {
@@ -1703,19 +1766,23 @@ describe('myzod', () => {
         importFrom: './types',
         useEnumTypeAsDefaultValue: true,
         namingConvention: {
-          transformUnderscore: true,
-        },
+          transformUnderscore: true
+        }
       },
-      {},
+      {}
     );
 
     expect(result.content).toContain('export const PageTypeSchema = myzod.enum(PageType)');
     expect(result.content).toContain('export function PageInputSchema(): myzod.Type<PageInput>');
 
     expect(result.content).toContain('pageType: PageTypeSchema.default(PageType.BasicAuth)');
-    expect(result.content).toContain('greeting: myzod.string().default("Hello").optional().nullable()');
+    expect(result.content).toContain(
+      'greeting: myzod.string().default("Hello").optional().nullable()'
+    );
     expect(result.content).toContain('score: myzod.number().default(100).optional().nullable()');
     expect(result.content).toContain('ratio: myzod.number().default(0.5).optional().nullable()');
-    expect(result.content).toContain('isMember: myzod.boolean().default(true).optional().nullable()');
+    expect(result.content).toContain(
+      'isMember: myzod.boolean().default(true).optional().nullable()'
+    );
   });
 });

@@ -34,24 +34,30 @@
   },
   "main": "dist/index.js",
   "files": [
+    "dist/**/*.{js,ts,json}",
     "!dist/**/*.tsbuildinfo",
-    "LICENSE",
     "README.md",
-    "dist/**/*.{js,ts,json}"
+    "LICENSE"
   ],
   "scripts": {
-    "type-check": "tsc --noEmit",
-    "type-check:yup": "tsc --strict --skipLibCheck --noEmit example/yup/schemas.ts",
-    "type-check:zod": "tsc --strict --skipLibCheck --noEmit example/zod/schemas.ts",
-    "type-check:myzod": "tsc --strict --skipLibCheck --noEmit example/myzod/schemas.ts",
-    "type-check:valibot": "tsc --strict --skipLibCheck --noEmit example/valibot/schemas.ts",
-    "test": "vitest run",
     "build": "tsc",
-    "lint": "oxlint .",
-    "lint-fix": "oxlint . --fix",
+    "format": "prettier --write .",
+    "format-check": "prettier --check .",
     "generate": "pnpm build && graphql-codegen",
     "generate:esm": "pnpm build && graphql-codegen-esm",
-    "prepublish": "pnpm build"
+    "lint": "oxlint .",
+    "lint-fix": "oxlint . --fix",
+    "prepare": "husky",
+    "prepublish": "pnpm build",
+    "test": "vitest run",
+    "type-check": "tsc --noEmit",
+    "type-check:myzod": "tsc --strict --skipLibCheck --noEmit example/myzod/schemas.ts",
+    "type-check:valibot": "tsc --strict --skipLibCheck --noEmit example/valibot/schemas.ts",
+    "type-check:yup": "tsc --strict --skipLibCheck --noEmit example/yup/schemas.ts",
+    "type-check:zod": "tsc --strict --skipLibCheck --noEmit example/zod/schemas.ts"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   },
   "peerDependencies": {
     "graphql": "^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0"
@@ -70,10 +76,14 @@
     "@tsconfig/recommended": "1.0.8",
     "@types/graphlib": "^2.1.8",
     "@types/node": "^22.0.0",
+    "husky": "^9.1.7",
     "jest": "29.7.0",
+    "lint-staged": "^16.1.0",
     "myzod": "1.12.1",
     "npm-run-all2": "8.0.4",
     "oxlint": "^0.17.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-package": "^1.4.0",
     "ts-dedent": "^2.2.0",
     "ts-jest": "29.3.4",
     "typescript": "5.8.3",
@@ -81,5 +91,23 @@
     "vitest": "^3.0.0",
     "yup": "1.6.1",
     "zod": "3.25.51"
+  },
+  "lint-staged": {
+    "*.{ts,js}?(x)": [
+      "oxlint --format stylish --fix",
+      "prettier --write"
+    ],
+    "**/(package|tsconfig(.*)?).json": [
+      "prettier --write"
+    ],
+    "(pnpm-workspace|.github/**/*).{yml,yaml}": [
+      "prettier --write"
+    ],
+    "*package.json": [
+      "prettier --write --plugin=prettier-plugin-package"
+    ],
+    "((.github/**/*)|(README|CHANGELOG)|(**/(README|CHANGELOG))).md": [
+      "prettier --write"
+    ]
   }
 }

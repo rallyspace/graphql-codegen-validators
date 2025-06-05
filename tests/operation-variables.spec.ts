@@ -134,7 +134,7 @@ const operationsDoc = /* GraphQL */ `
 const documents = [
   {
     location: 'test.graphql',
-    document: parse(operationsDoc),
+    document: parse(operationsDoc)
   }
 ];
 
@@ -201,7 +201,9 @@ describe('Operation Variable Schema Generation', () => {
 
       const result = await plugin(schema, documents as any, config);
 
-      expect(result.content).toContain('export const Editor_StoryQueryVariableSchema: z.ZodObject<Properties<Editor_StoryQueryQueryVariables>>');
+      expect(result.content).toContain(
+        'export const Editor_StoryQueryVariableSchema: z.ZodObject<Properties<Editor_StoryQueryQueryVariables>>'
+      );
       expect(result.content).toContain('= z.object({');
       expect(result.content).not.toContain('export function Editor_StoryQueryVariableSchema()');
     });
@@ -246,7 +248,9 @@ describe('Operation Variable Schema Generation', () => {
       expect(result.content).toContain('email: yup.string().defined()');
 
       // Check that optional fields with defaults are handled correctly
-      expect(result.content).toContain('includePreferences: yup.boolean().default(false).optional()');
+      expect(result.content).toContain(
+        'includePreferences: yup.boolean().default(false).optional()'
+      );
 
       // Check that optional fields are handled correctly
       expect(result.content).toContain('age: yup.number().optional()');
@@ -282,7 +286,9 @@ describe('Operation Variable Schema Generation', () => {
       expect(result.content).toContain('userId: mz.string()');
 
       // Check that optional fields with defaults are handled correctly
-      expect(result.content).toContain('includePreferences: mz.boolean().default(false).optional()');
+      expect(result.content).toContain(
+        'includePreferences: mz.boolean().default(false).optional()'
+      );
 
       // Check that optional fields are handled correctly
       expect(result.content).toContain('age: mz.number().optional()');
@@ -307,7 +313,9 @@ describe('Operation Variable Schema Generation', () => {
       const result = await plugin(schema, documents as any, config);
 
       expect(result.content).toContain('Editor_StoryQueryVariableSchema');
-      expect(result.content).toContain('v.ObjectSchema<Editor_StoryQueryQueryVariables, undefined>');
+      expect(result.content).toContain(
+        'v.ObjectSchema<Editor_StoryQueryQueryVariables, undefined>'
+      );
 
       // Check that required fields are handled correctly
       expect(result.content).toContain('storyId: v.string()');
@@ -406,7 +414,7 @@ describe('Operation Variable Schema Generation', () => {
       const emptyDocuments = [
         {
           location: 'test.graphql',
-          document: parse(emptyOperationsDoc),
+          document: parse(emptyOperationsDoc)
         }
       ];
 
@@ -436,7 +444,7 @@ describe('Operation Variable Schema Generation', () => {
       const unnamedDocuments = [
         {
           location: 'test.graphql',
-          document: parse(unnamedOperationsDoc),
+          document: parse(unnamedOperationsDoc)
         }
       ];
 
@@ -466,7 +474,7 @@ describe('Operation Variable Schema Generation', () => {
       const customDocuments = [
         {
           location: 'test.graphql',
-          document: parse(customScalarDoc),
+          document: parse(customScalarDoc)
         }
       ];
 

@@ -6,7 +6,7 @@ You can use zod [extend API](https://github.com/colinhacks/zod#extend).
 
 ```ts
 const AttributeInputSchemaWithCUID = AttributeInputSchema().extend({
-  key: z.string().cuid(),
+  key: z.string().cuid()
 });
 ```
 
@@ -37,7 +37,7 @@ type ZodResolver<T extends ZodType<any, any, any>> = ResolverFn<
   any,
   any,
   { input: TypeOf<T> }
->
+>;
 
 /**
  * Method decorator that validates the argument of the target function against the given schema.
@@ -52,26 +52,20 @@ export function validateInput<T extends AnyZodObject>(
 ): MethodDecorator<ZodResolver<T>> {
   return function (_target, _propertyKey, descriptor) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const originalMethod = descriptor.value!
+    const originalMethod = descriptor.value!;
     // @ts-expect-error: should be fine
     descriptor.value = function (root, { input }, context, info) {
-      const schema = typeof arg === 'function' ? arg() : arg
-      const result = schema.safeParse(input)
+      const schema = typeof arg === 'function' ? arg() : arg;
+      const result = schema.safeParse(input);
 
       if (result.success) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return originalMethod.call(
-          this,
-          root,
-          { input: result.data },
-          context,
-          info
-        )
+        return originalMethod.call(this, root, { input: result.data }, context, info);
       } else {
-        return { problems: result.error.issues }
+        return { problems: result.error.issues };
       }
-    }
-    return descriptor
-  }
+    };
+    return descriptor;
+  };
 }
 ```

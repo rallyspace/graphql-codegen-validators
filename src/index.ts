@@ -14,14 +14,14 @@ import { ZodSchemaVisitor } from './zod/index.js';
 export const plugin: PluginFunction<ValidationSchemaPluginConfig, Types.ComplexPluginOutput> = (
   schema: GraphQLSchema,
   documents: Types.DocumentFile[],
-  config: ValidationSchemaPluginConfig,
+  config: ValidationSchemaPluginConfig
 ): Types.ComplexPluginOutput => {
   const { schema: _schema, ast } = _transformSchemaAST(schema, config);
   const visitor = schemaVisitor(_schema, config);
 
   const result = visit(ast, visitor);
 
-  const generated = result.definitions.filter(def => typeof def === 'string');
+  const generated = result.definitions.filter((def) => typeof def === 'string');
 
   // Generate operation variable schemas if enabled
   const operationVariableSchemas: string[] = [];
@@ -34,17 +34,14 @@ export const plugin: PluginFunction<ValidationSchemaPluginConfig, Types.ComplexP
 
   return {
     prepend: [...visitor.buildImports(), ...additionalImports],
-    content: [visitor.initialEmit(), ...generated, ...operationVariableSchemas].join('\n'),
+    content: [visitor.initialEmit(), ...generated, ...operationVariableSchemas].join('\n')
   };
 };
 
 function schemaVisitor(schema: GraphQLSchema, config: ValidationSchemaPluginConfig): SchemaVisitor {
-  if (config?.schema === 'zod')
-    return new ZodSchemaVisitor(schema, config);
-  else if (config?.schema === 'myzod')
-    return new MyZodSchemaVisitor(schema, config);
-  else if (config?.schema === 'valibot')
-    return new ValibotSchemaVisitor(schema, config);
+  if (config?.schema === 'zod') return new ZodSchemaVisitor(schema, config);
+  else if (config?.schema === 'myzod') return new MyZodSchemaVisitor(schema, config);
+  else if (config?.schema === 'valibot') return new ValibotSchemaVisitor(schema, config);
 
   return new YupSchemaVisitor(schema, config);
 }
@@ -53,26 +50,28 @@ function _transformSchemaAST(schema: GraphQLSchema, config: ValidationSchemaPlug
   const { schema: _schema, ast } = transformSchemaAST(schema, config);
 
   // See: https://github.com/Code-Hex/graphql-codegen-typescript-validation-schema/issues/394
-  const __schema = isGeneratedByIntrospection(_schema) ? buildSchema(printSchema(_schema)) : _schema;
+  const __schema = isGeneratedByIntrospection(_schema)
+    ? buildSchema(printSchema(_schema))
+    : _schema;
 
   // This affects the performance of code generation, so it is
   // enabled only when this option is selected.
   if (config.validationSchemaExportType === 'const') {
     return {
       schema: __schema,
-      ast: topologicalSortAST(__schema, ast),
+      ast: topologicalSortAST(__schema, ast)
     };
   }
   return {
     schema: __schema,
-    ast,
+    ast
   };
 }
 
 function generateOperationVariableSchemas(
   documents: Types.DocumentFile[],
   visitor: SchemaVisitor,
-  config: ValidationSchemaPluginConfig,
+  config: ValidationSchemaPluginConfig
 ): { schemas: string[]; imports: string[] } {
   const schemas: string[] = [];
   const imports = new Set<string>();
@@ -97,7 +96,8 @@ function generateOperationVariableSchemas(
         }
 
         const schemaName = operationName + suffix;
-        const operationType = operation.operation.charAt(0).toUpperCase() + operation.operation.slice(1);
+        const operationType =
+          operation.operation.charAt(0).toUpperCase() + operation.operation.slice(1);
         const typeName = `${operationName}${operationType}Variables`;
 
         // Add the type to imports
@@ -105,17 +105,46 @@ function generateOperationVariableSchemas(
 
         // Generate the variable schema based on the validation library type
         if (config?.schema === 'zod') {
-          schemas.push(generateZodOperationVariableSchema(operation.variableDefinitions, schemaName, typeName, visitor, config));
-        }
-        else if (config?.schema === 'myzod') {
-          schemas.push(generateMyZodOperationVariableSchema(operation.variableDefinitions, schemaName, typeName, visitor, config));
-        }
-        else if (config?.schema === 'valibot') {
-          schemas.push(generateValibotOperationVariableSchema(operation.variableDefinitions, schemaName, typeName, visitor, config));
-        }
-        else {
+          schemas.push(
+            generateZodOperationVariableSchema(
+              operation.variableDefinitions,
+              schemaName,
+              typeName,
+              visitor,
+              config
+            )
+          );
+        } else if (config?.schema === 'myzod') {
+          schemas.push(
+            generateMyZodOperationVariableSchema(
+              operation.variableDefinitions,
+              schemaName,
+              typeName,
+              visitor,
+              config
+            )
+          );
+        } else if (config?.schema === 'valibot') {
+          schemas.push(
+            generateValibotOperationVariableSchema(
+              operation.variableDefinitions,
+              schemaName,
+              typeName,
+              visitor,
+              config
+            )
+          );
+        } else {
           // Default to yup
-          schemas.push(generateYupOperationVariableSchema(operation.variableDefinitions, schemaName, typeName, visitor, config));
+          schemas.push(
+            generateYupOperationVariableSchema(
+              operation.variableDefinitions,
+              schemaName,
+              typeName,
+              visitor,
+              config
+            )
+          );
         }
       }
     }
@@ -129,10 +158,11 @@ function generateOperationVariableSchemas(
     if (config.schemaNamespacedImportName) {
       // If we're using namespaced imports, we don't need separate imports for operation variables
       // as they'll be accessed via the namespace
-    }
-    else {
+    } else {
       // Add separate import for operation variable types
-      importStatements.push(`import ${namedImportPrefix}{ ${Array.from(imports).join(', ')} } from '${config.importFrom}'`);
+      importStatements.push(
+        `import ${namedImportPrefix}{ ${Array.from(imports).join(', ')} } from '${config.importFrom}'`
+      );
     }
   }
 
@@ -144,17 +174,24 @@ function generateZodOperationVariableSchema(
   schemaName: string,
   typeName: string,
   visitor: SchemaVisitor,
-  config: ValidationSchemaPluginConfig,
+  config: ValidationSchemaPluginConfig
 ): string {
   const prefixedTypeName = config.schemaNamespacedImportName
     ? `${config.schemaNamespacedImportName}.${typeName}`
     : typeName;
 
-  const fields = variables.map((variable) => {
-    const fieldName = variable.variable.name.value;
-    const fieldType = generateZodTypeFromGraphQLType(variable.type, visitor, config, variable.defaultValue);
-    return `    ${fieldName}: ${fieldType}`;
-  }).join(',\n');
+  const fields = variables
+    .map((variable) => {
+      const fieldName = variable.variable.name.value;
+      const fieldType = generateZodTypeFromGraphQLType(
+        variable.type,
+        visitor,
+        config,
+        variable.defaultValue
+      );
+      return `    ${fieldName}: ${fieldType}`;
+    })
+    .join(',\n');
 
   switch (config.validationSchemaExportType) {
     case 'const':
@@ -170,17 +207,24 @@ function generateYupOperationVariableSchema(
   schemaName: string,
   typeName: string,
   visitor: SchemaVisitor,
-  config: ValidationSchemaPluginConfig,
+  config: ValidationSchemaPluginConfig
 ): string {
   const prefixedTypeName = config.schemaNamespacedImportName
     ? `${config.schemaNamespacedImportName}.${typeName}`
     : typeName;
 
-  const fields = variables.map((variable) => {
-    const fieldName = variable.variable.name.value;
-    const fieldType = generateYupTypeFromGraphQLType(variable.type, visitor, config, variable.defaultValue);
-    return `    ${fieldName}: ${fieldType}`;
-  }).join(',\n');
+  const fields = variables
+    .map((variable) => {
+      const fieldName = variable.variable.name.value;
+      const fieldType = generateYupTypeFromGraphQLType(
+        variable.type,
+        visitor,
+        config,
+        variable.defaultValue
+      );
+      return `    ${fieldName}: ${fieldType}`;
+    })
+    .join(',\n');
 
   switch (config.validationSchemaExportType) {
     case 'const':
@@ -196,17 +240,24 @@ function generateMyZodOperationVariableSchema(
   schemaName: string,
   typeName: string,
   visitor: SchemaVisitor,
-  config: ValidationSchemaPluginConfig,
+  config: ValidationSchemaPluginConfig
 ): string {
   const prefixedTypeName = config.schemaNamespacedImportName
     ? `${config.schemaNamespacedImportName}.${typeName}`
     : typeName;
 
-  const fields = variables.map((variable) => {
-    const fieldName = variable.variable.name.value;
-    const fieldType = generateMyZodTypeFromGraphQLType(variable.type, visitor, config, variable.defaultValue);
-    return `    ${fieldName}: ${fieldType}`;
-  }).join(',\n');
+  const fields = variables
+    .map((variable) => {
+      const fieldName = variable.variable.name.value;
+      const fieldType = generateMyZodTypeFromGraphQLType(
+        variable.type,
+        visitor,
+        config,
+        variable.defaultValue
+      );
+      return `    ${fieldName}: ${fieldType}`;
+    })
+    .join(',\n');
 
   switch (config.validationSchemaExportType) {
     case 'const':
@@ -222,17 +273,24 @@ function generateValibotOperationVariableSchema(
   schemaName: string,
   typeName: string,
   visitor: SchemaVisitor,
-  config: ValidationSchemaPluginConfig,
+  config: ValidationSchemaPluginConfig
 ): string {
   const prefixedTypeName = config.schemaNamespacedImportName
     ? `${config.schemaNamespacedImportName}.${typeName}`
     : typeName;
 
-  const fields = variables.map((variable) => {
-    const fieldName = variable.variable.name.value;
-    const fieldType = generateValibotTypeFromGraphQLType(variable.type, visitor, config, variable.defaultValue);
-    return `    ${fieldName}: ${fieldType}`;
-  }).join(',\n');
+  const fields = variables
+    .map((variable) => {
+      const fieldName = variable.variable.name.value;
+      const fieldType = generateValibotTypeFromGraphQLType(
+        variable.type,
+        visitor,
+        config,
+        variable.defaultValue
+      );
+      return `    ${fieldName}: ${fieldType}`;
+    })
+    .join(',\n');
 
   switch (config.validationSchemaExportType) {
     case 'const':
@@ -244,7 +302,12 @@ function generateValibotOperationVariableSchema(
 }
 
 // Helper functions to generate field types for each validation library
-function generateZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, config: ValidationSchemaPluginConfig, defaultValue?: any): string {
+function generateZodTypeFromGraphQLType(
+  type: any,
+  visitor: SchemaVisitor,
+  config: ValidationSchemaPluginConfig,
+  defaultValue?: any
+): string {
   const isNonNull = type.kind === 'NonNullType';
   const actualType = isNonNull ? type.type : type;
 
@@ -253,16 +316,15 @@ function generateZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, confi
   if (actualType.kind === 'ListType') {
     const innerType = generateZodTypeFromGraphQLType(actualType.type, visitor, config);
     zodType = `z.array(${innerType})`;
-  }
-  else if (actualType.kind === 'NamedType') {
+  } else if (actualType.kind === 'NamedType') {
     const typeName = actualType.name.value;
 
     // Check if it's an input type that has a schema
     const graphqlType = (visitor as any).getSchema?.()?.getType(typeName);
     if (graphqlType?.astNode?.kind === 'InputObjectTypeDefinition') {
-      zodType = config.validationSchemaExportType === 'const' ? `${typeName}Schema` : `${typeName}Schema()`;
-    }
-    else {
+      zodType =
+        config.validationSchemaExportType === 'const' ? `${typeName}Schema` : `${typeName}Schema()`;
+    } else {
       // Handle scalars
       switch (typeName) {
         case 'String':
@@ -280,17 +342,14 @@ function generateZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, confi
           // Check if it's a custom scalar with schema
           if (config.scalarSchemas?.[typeName]) {
             zodType = config.scalarSchemas[typeName];
-          }
-          else if (graphqlType?.astNode?.kind === 'EnumTypeDefinition') {
+          } else if (graphqlType?.astNode?.kind === 'EnumTypeDefinition') {
             zodType = `${typeName}Schema`;
-          }
-          else {
+          } else {
             zodType = config.defaultScalarTypeSchema || 'z.any()';
           }
       }
     }
-  }
-  else {
+  } else {
     zodType = 'z.any()';
   }
 
@@ -298,14 +357,11 @@ function generateZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, confi
   if (defaultValue) {
     if (defaultValue.kind === 'IntValue' || defaultValue.kind === 'FloatValue') {
       zodType = `${zodType}.default(${defaultValue.value})`;
-    }
-    else if (defaultValue.kind === 'StringValue') {
+    } else if (defaultValue.kind === 'StringValue') {
       zodType = `${zodType}.default("${defaultValue.value}")`;
-    }
-    else if (defaultValue.kind === 'BooleanValue') {
+    } else if (defaultValue.kind === 'BooleanValue') {
       zodType = `${zodType}.default(${defaultValue.value})`;
-    }
-    else if (defaultValue.kind === 'EnumValue') {
+    } else if (defaultValue.kind === 'EnumValue') {
       zodType = `${zodType}.default(${actualType.name.value}.${defaultValue.value})`;
     }
   }
@@ -318,7 +374,12 @@ function generateZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, confi
   return zodType;
 }
 
-function generateYupTypeFromGraphQLType(type: any, visitor: SchemaVisitor, config: ValidationSchemaPluginConfig, defaultValue?: any): string {
+function generateYupTypeFromGraphQLType(
+  type: any,
+  visitor: SchemaVisitor,
+  config: ValidationSchemaPluginConfig,
+  defaultValue?: any
+): string {
   const isNonNull = type.kind === 'NonNullType';
   const actualType = isNonNull ? type.type : type;
 
@@ -327,15 +388,14 @@ function generateYupTypeFromGraphQLType(type: any, visitor: SchemaVisitor, confi
   if (actualType.kind === 'ListType') {
     const innerType = generateYupTypeFromGraphQLType(actualType.type, visitor, config);
     yupType = `yup.array(${innerType})`;
-  }
-  else if (actualType.kind === 'NamedType') {
+  } else if (actualType.kind === 'NamedType') {
     const typeName = actualType.name.value;
 
     const graphqlType = (visitor as any).getSchema?.()?.getType(typeName);
     if (graphqlType?.astNode?.kind === 'InputObjectTypeDefinition') {
-      yupType = config.validationSchemaExportType === 'const' ? `${typeName}Schema` : `${typeName}Schema()`;
-    }
-    else {
+      yupType =
+        config.validationSchemaExportType === 'const' ? `${typeName}Schema` : `${typeName}Schema()`;
+    } else {
       switch (typeName) {
         case 'String':
         case 'ID':
@@ -351,17 +411,14 @@ function generateYupTypeFromGraphQLType(type: any, visitor: SchemaVisitor, confi
         default:
           if (config.scalarSchemas?.[typeName]) {
             yupType = config.scalarSchemas[typeName];
-          }
-          else if (graphqlType?.astNode?.kind === 'EnumTypeDefinition') {
+          } else if (graphqlType?.astNode?.kind === 'EnumTypeDefinition') {
             yupType = `${typeName}Schema`;
-          }
-          else {
+          } else {
             yupType = config.defaultScalarTypeSchema || 'yup.mixed()';
           }
       }
     }
-  }
-  else {
+  } else {
     yupType = 'yup.mixed()';
   }
 
@@ -369,14 +426,11 @@ function generateYupTypeFromGraphQLType(type: any, visitor: SchemaVisitor, confi
   if (defaultValue) {
     if (defaultValue.kind === 'IntValue' || defaultValue.kind === 'FloatValue') {
       yupType = `${yupType}.default(${defaultValue.value})`;
-    }
-    else if (defaultValue.kind === 'StringValue') {
+    } else if (defaultValue.kind === 'StringValue') {
       yupType = `${yupType}.default("${defaultValue.value}")`;
-    }
-    else if (defaultValue.kind === 'BooleanValue') {
+    } else if (defaultValue.kind === 'BooleanValue') {
       yupType = `${yupType}.default(${defaultValue.value})`;
-    }
-    else if (defaultValue.kind === 'EnumValue') {
+    } else if (defaultValue.kind === 'EnumValue') {
       yupType = `${yupType}.default(${actualType.name.value}.${defaultValue.value})`;
     }
   }
@@ -384,15 +438,19 @@ function generateYupTypeFromGraphQLType(type: any, visitor: SchemaVisitor, confi
   // Add defined and optional for nullable fields
   if (isNonNull) {
     yupType = `${yupType}.defined()`;
-  }
-  else {
+  } else {
     yupType = `${yupType}.optional()`;
   }
 
   return yupType;
 }
 
-function generateMyZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, config: ValidationSchemaPluginConfig, defaultValue?: any): string {
+function generateMyZodTypeFromGraphQLType(
+  type: any,
+  visitor: SchemaVisitor,
+  config: ValidationSchemaPluginConfig,
+  defaultValue?: any
+): string {
   const isNonNull = type.kind === 'NonNullType';
   const actualType = isNonNull ? type.type : type;
 
@@ -401,15 +459,14 @@ function generateMyZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, con
   if (actualType.kind === 'ListType') {
     const innerType = generateMyZodTypeFromGraphQLType(actualType.type, visitor, config);
     myzodType = `mz.array(${innerType})`;
-  }
-  else if (actualType.kind === 'NamedType') {
+  } else if (actualType.kind === 'NamedType') {
     const typeName = actualType.name.value;
 
     const graphqlType = (visitor as any).getSchema?.()?.getType(typeName);
     if (graphqlType?.astNode?.kind === 'InputObjectTypeDefinition') {
-      myzodType = config.validationSchemaExportType === 'const' ? `${typeName}Schema` : `${typeName}Schema()`;
-    }
-    else {
+      myzodType =
+        config.validationSchemaExportType === 'const' ? `${typeName}Schema` : `${typeName}Schema()`;
+    } else {
       switch (typeName) {
         case 'String':
         case 'ID':
@@ -425,17 +482,14 @@ function generateMyZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, con
         default:
           if (config.scalarSchemas?.[typeName]) {
             myzodType = config.scalarSchemas[typeName];
-          }
-          else if (graphqlType?.astNode?.kind === 'EnumTypeDefinition') {
+          } else if (graphqlType?.astNode?.kind === 'EnumTypeDefinition') {
             myzodType = `${typeName}Schema`;
-          }
-          else {
+          } else {
             myzodType = config.defaultScalarTypeSchema || 'mz.unknown()';
           }
       }
     }
-  }
-  else {
+  } else {
     myzodType = 'mz.unknown()';
   }
 
@@ -443,14 +497,11 @@ function generateMyZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, con
   if (defaultValue) {
     if (defaultValue.kind === 'IntValue' || defaultValue.kind === 'FloatValue') {
       myzodType = `${myzodType}.default(${defaultValue.value})`;
-    }
-    else if (defaultValue.kind === 'StringValue') {
+    } else if (defaultValue.kind === 'StringValue') {
       myzodType = `${myzodType}.default("${defaultValue.value}")`;
-    }
-    else if (defaultValue.kind === 'BooleanValue') {
+    } else if (defaultValue.kind === 'BooleanValue') {
       myzodType = `${myzodType}.default(${defaultValue.value})`;
-    }
-    else if (defaultValue.kind === 'EnumValue') {
+    } else if (defaultValue.kind === 'EnumValue') {
       myzodType = `${myzodType}.default(${actualType.name.value}.${defaultValue.value})`;
     }
   }
@@ -463,7 +514,12 @@ function generateMyZodTypeFromGraphQLType(type: any, visitor: SchemaVisitor, con
   return myzodType;
 }
 
-function generateValibotTypeFromGraphQLType(type: any, visitor: SchemaVisitor, config: ValidationSchemaPluginConfig, defaultValue?: any): string {
+function generateValibotTypeFromGraphQLType(
+  type: any,
+  visitor: SchemaVisitor,
+  config: ValidationSchemaPluginConfig,
+  defaultValue?: any
+): string {
   const isNonNull = type.kind === 'NonNullType';
   const actualType = isNonNull ? type.type : type;
 
@@ -472,15 +528,14 @@ function generateValibotTypeFromGraphQLType(type: any, visitor: SchemaVisitor, c
   if (actualType.kind === 'ListType') {
     const innerType = generateValibotTypeFromGraphQLType(actualType.type, visitor, config);
     valibotType = `v.array(${innerType})`;
-  }
-  else if (actualType.kind === 'NamedType') {
+  } else if (actualType.kind === 'NamedType') {
     const typeName = actualType.name.value;
 
     const graphqlType = (visitor as any).getSchema?.()?.getType(typeName);
     if (graphqlType?.astNode?.kind === 'InputObjectTypeDefinition') {
-      valibotType = config.validationSchemaExportType === 'const' ? `${typeName}Schema` : `${typeName}Schema()`;
-    }
-    else {
+      valibotType =
+        config.validationSchemaExportType === 'const' ? `${typeName}Schema` : `${typeName}Schema()`;
+    } else {
       switch (typeName) {
         case 'String':
         case 'ID':
@@ -496,17 +551,14 @@ function generateValibotTypeFromGraphQLType(type: any, visitor: SchemaVisitor, c
         default:
           if (config.scalarSchemas?.[typeName]) {
             valibotType = config.scalarSchemas[typeName];
-          }
-          else if (graphqlType?.astNode?.kind === 'EnumTypeDefinition') {
+          } else if (graphqlType?.astNode?.kind === 'EnumTypeDefinition') {
             valibotType = `${typeName}Schema`;
-          }
-          else {
+          } else {
             valibotType = config.defaultScalarTypeSchema || 'v.any()';
           }
       }
     }
-  }
-  else {
+  } else {
     valibotType = 'v.any()';
   }
 
@@ -514,22 +566,18 @@ function generateValibotTypeFromGraphQLType(type: any, visitor: SchemaVisitor, c
   if (defaultValue) {
     if (defaultValue.kind === 'IntValue' || defaultValue.kind === 'FloatValue') {
       valibotType = `v.optional(${valibotType}, ${defaultValue.value})`;
-    }
-    else if (defaultValue.kind === 'StringValue') {
+    } else if (defaultValue.kind === 'StringValue') {
       valibotType = `v.optional(${valibotType}, "${defaultValue.value}")`;
-    }
-    else if (defaultValue.kind === 'BooleanValue') {
+    } else if (defaultValue.kind === 'BooleanValue') {
       valibotType = `v.optional(${valibotType}, ${defaultValue.value})`;
-    }
-    else if (defaultValue.kind === 'EnumValue') {
+    } else if (defaultValue.kind === 'EnumValue') {
       valibotType = `v.optional(${valibotType}, ${actualType.name.value}.${defaultValue.value})`;
     }
-  }
-  else if (!isNonNull) {
+  } else if (!isNonNull) {
     valibotType = `v.optional(${valibotType})`;
   }
 
   return valibotType;
 }
 
-export type { ValidationSchemaPluginConfig }
+export type { ValidationSchemaPluginConfig };

@@ -7,11 +7,6 @@
     "nursery": "off",
     "restriction": "off"
   },
-  "plugins": [
-    "typescript",
-    "import",
-    "unicorn",
-    "oxc"
-  ],
+  "plugins": ["typescript", "import", "unicorn", "oxc"],
   "rules": {}
 }

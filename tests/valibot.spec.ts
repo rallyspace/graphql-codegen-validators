@@ -14,8 +14,8 @@ describe('valibot', () => {
       }
     `);
     const scalars = {
-      ID: 'string',
-    }
+      ID: 'string'
+    };
     const result = await plugin(schema, [], { schema: 'valibot', scalars }, {});
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -31,7 +31,7 @@ describe('valibot', () => {
       }
       "
     `);
-  })
+  });
   it('nullish', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input PrimitiveInput {
@@ -44,8 +44,8 @@ describe('valibot', () => {
       }
     `);
     const scalars = {
-      ID: 'string',
-    }
+      ID: 'string'
+    };
     const result = await plugin(schema, [], { schema: 'valibot', scalars }, {});
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -62,7 +62,7 @@ describe('valibot', () => {
       }
       "
     `);
-  })
+  });
   it('array', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input PrimitiveInput {
@@ -74,7 +74,7 @@ describe('valibot', () => {
         f: [[String]!]!
       }
     `);
-    const scalars = undefined
+    const scalars = undefined;
     const result = await plugin(schema, [], { schema: 'valibot', scalars }, {});
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -91,7 +91,7 @@ describe('valibot', () => {
       }
       "
     `);
-  })
+  });
   it('ref input object', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input AInput {
@@ -104,7 +104,7 @@ describe('valibot', () => {
         a: AInput!
       }
     `);
-    const scalars = undefined
+    const scalars = undefined;
     const result = await plugin(schema, [], { schema: 'valibot', scalars }, {});
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -128,7 +128,7 @@ describe('valibot', () => {
       }
       "
     `);
-  })
+  });
   it('ref input object w/ schemaNamespacedImportName', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input AInput {
@@ -141,8 +141,18 @@ describe('valibot', () => {
         a: AInput!
       }
     `);
-    const scalars = undefined
-    const result = await plugin(schema, [], { schema: 'valibot', scalars, importFrom: './types', schemaNamespacedImportName: 't' }, {});
+    const scalars = undefined;
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'valibot',
+        scalars,
+        importFrom: './types',
+        schemaNamespacedImportName: 't'
+      },
+      {}
+    );
     expect(result.content).toMatchInlineSnapshot(`
       "
 
@@ -165,7 +175,7 @@ describe('valibot', () => {
       }
       "
     `);
-  })
+  });
   it('nested input object', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input NestedInput {
@@ -173,7 +183,7 @@ describe('valibot', () => {
         childrens: [NestedInput]
       }
     `);
-    const scalars = undefined
+    const scalars = undefined;
     const result = await plugin(schema, [], { schema: 'valibot', scalars }, {});
 
     expect(result.content).toMatchInlineSnapshot(`
@@ -186,8 +196,8 @@ describe('valibot', () => {
         })
       }
       "
-    `)
-  })
+    `);
+  });
   it('enum', async () => {
     const schema = buildSchema(/* GraphQL */ `
       enum PageType {
@@ -198,7 +208,7 @@ describe('valibot', () => {
         pageType: PageType!
       }
     `);
-    const scalars = undefined
+    const scalars = undefined;
     const result = await plugin(schema, [], { schema: 'valibot', scalars }, {});
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -211,7 +221,7 @@ describe('valibot', () => {
       }
       "
     `);
-  })
+  });
   it('enum w/ schemaNamespacedImportName', async () => {
     const schema = buildSchema(/* GraphQL */ `
       enum PageType {
@@ -222,8 +232,18 @@ describe('valibot', () => {
         pageType: PageType!
       }
     `);
-    const scalars = undefined
-    const result = await plugin(schema, [], { schema: 'valibot', scalars, importFrom: './types', schemaNamespacedImportName: 't' }, {});
+    const scalars = undefined;
+    const result = await plugin(
+      schema,
+      [],
+      {
+        schema: 'valibot',
+        scalars,
+        importFrom: './types',
+        schemaNamespacedImportName: 't'
+      },
+      {}
+    );
     expect(result.content).toMatchInlineSnapshot(`
       "
       export const PageTypeSchema = v.enum_(t.PageType);
@@ -235,7 +255,7 @@ describe('valibot', () => {
       }
       "
     `);
-  })
+  });
   it('camelcase', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input HTTPInput {
@@ -248,7 +268,7 @@ describe('valibot', () => {
       }
       scalar URL # unknown scalar, should be any
     `);
-    const scalars = undefined
+    const scalars = undefined;
     const result = await plugin(schema, [], { schema: 'valibot', scalars }, {});
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -262,7 +282,7 @@ describe('valibot', () => {
       }
       "
     `);
-  })
+  });
   it('with scalars', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input Say {
@@ -279,10 +299,10 @@ describe('valibot', () => {
         schema: 'valibot',
         scalars: {
           Text: 'string',
-          Count: 'number',
-        },
+          Count: 'number'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -307,9 +327,9 @@ describe('valibot', () => {
       [],
       {
         schema: 'valibot',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
@@ -340,9 +360,9 @@ describe('valibot', () => {
       {
         schema: 'valibot',
         importFrom: './types',
-        schemaNamespacedImportName: 't',
+        schemaNamespacedImportName: 't'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
@@ -373,9 +393,9 @@ describe('valibot', () => {
       {
         schema: 'valibot',
         importFrom: './types',
-        useTypeImports: true,
+        useTypeImports: true
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
@@ -406,9 +426,9 @@ describe('valibot', () => {
       [],
       {
         schema: 'valibot',
-        enumsAsTypes: true,
+        enumsAsTypes: true
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -430,9 +450,9 @@ describe('valibot', () => {
         schema: 'valibot',
         enumsAsTypes: true,
         importFrom: './types',
-        schemaNamespacedImportName: 't',
+        schemaNamespacedImportName: 't'
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -457,10 +477,10 @@ describe('valibot', () => {
         schema: 'valibot',
         notAllowEmptyString: true,
         scalars: {
-          ID: 'string',
-        },
+          ID: 'string'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -475,8 +495,8 @@ describe('valibot', () => {
         })
       }
       "
-    `)
-  })
+    `);
+  });
   it('with notAllowEmptyString issue #386', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input InputOne {
@@ -494,10 +514,10 @@ describe('valibot', () => {
         schema: 'valibot',
         notAllowEmptyString: true,
         scalars: {
-          ID: 'string',
-        },
+          ID: 'string'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -514,8 +534,8 @@ describe('valibot', () => {
         })
       }
       "
-    `)
-  })
+    `);
+  });
   it('with scalarSchemas', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input ScalarsInput {
@@ -533,10 +553,10 @@ describe('valibot', () => {
         schema: 'valibot',
         scalarSchemas: {
           Date: 'v.date()',
-          Email: 'v.string([v.email()])',
-        },
+          Email: 'v.string([v.email()])'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -549,7 +569,7 @@ describe('valibot', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with defaultScalarTypeSchema', async () => {
@@ -568,11 +588,11 @@ describe('valibot', () => {
       {
         schema: 'valibot',
         scalarSchemas: {
-          Email: 'v.string([v.email()])',
+          Email: 'v.string([v.email()])'
         },
-        defaultScalarTypeSchema: 'v.string()',
+        defaultScalarTypeSchema: 'v.string()'
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -585,7 +605,7 @@ describe('valibot', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with typesPrefix', async () => {
@@ -600,16 +620,16 @@ describe('valibot', () => {
       {
         schema: 'valibot',
         typesPrefix: 'I',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as v from 'valibot'",
         "import { ISay } from './types'",
       ]
-    `)
+    `);
     expect(result.content).toMatchInlineSnapshot(`
       "
 
@@ -619,8 +639,8 @@ describe('valibot', () => {
         })
       }
       "
-    `)
-  })
+    `);
+  });
   it('with typesSuffix', async () => {
     const schema = buildSchema(/* GraphQL */ `
       input Say {
@@ -633,16 +653,16 @@ describe('valibot', () => {
       {
         schema: 'valibot',
         typesSuffix: 'I',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as v from 'valibot'",
         "import { SayI } from './types'",
       ]
-    `)
+    `);
     expect(result.content).toMatchInlineSnapshot(`
       "
 
@@ -652,9 +672,9 @@ describe('valibot', () => {
         })
       }
       "
-    `)
-  })
-  it.todo('with default input values')
+    `);
+  });
+  it.todo('with default input values');
   describe('issues #19', () => {
     it('string field', async () => {
       const schema = buildSchema(/* GraphQL */ `
@@ -671,11 +691,11 @@ describe('valibot', () => {
           directives: {
             constraint: {
               minLength: ['minLength', '$1', 'Please input more than $1'],
-              maxLength: ['maxLength', '$1', 'Please input less than $1'],
-            },
-          },
+              maxLength: ['maxLength', '$1', 'Please input less than $1']
+            }
+          }
         },
-        {},
+        {}
       );
       expect(result.content).toMatchInlineSnapshot(`
         "
@@ -686,7 +706,7 @@ describe('valibot', () => {
           })
         }
         "
-      `)
+      `);
     });
 
     it('not null field', async () => {
@@ -704,11 +724,11 @@ describe('valibot', () => {
           directives: {
             constraint: {
               minLength: ['minLength', '$1', 'Please input more than $1'],
-              maxLength: ['maxLength', '$1', 'Please input less than $1'],
-            },
-          },
+              maxLength: ['maxLength', '$1', 'Please input less than $1']
+            }
+          }
         },
-        {},
+        {}
       );
 
       expect(result.content).toMatchInlineSnapshot(`
@@ -720,13 +740,13 @@ describe('valibot', () => {
           })
         }
         "
-      `)
+      `);
     });
-    it.todo('list field')
+    it.todo('list field');
     describe('pR #112', () => {
-      it.todo('with notAllowEmptyString')
-      it.todo('without notAllowEmptyString')
-    })
+      it.todo('with notAllowEmptyString');
+      it.todo('without notAllowEmptyString');
+    });
     describe('with withObjectType', () => {
       it('not generate if withObjectType false', async () => {
         const schema = buildSchema(/* GraphQL */ `
@@ -739,9 +759,9 @@ describe('valibot', () => {
           schema,
           [],
           {
-            schema: 'valibot',
+            schema: 'valibot'
           },
-          {},
+          {}
         );
         expect(result.content).not.toContain('export function UserSchema(): v.GenericSchema<User>');
       });
@@ -762,9 +782,9 @@ describe('valibot', () => {
           [],
           {
             schema: 'valibot',
-            withObjectType: true,
+            withObjectType: true
           },
-          {},
+          {}
         );
         expect(result.content).toMatchInlineSnapshot(`
           "
@@ -785,7 +805,7 @@ describe('valibot', () => {
             })
           }
           "
-        `)
+        `);
 
         for (const wantNotContain of ['Query', 'Mutation', 'Subscription'])
           expect(result.content).not.toContain(wantNotContain);
@@ -832,16 +852,16 @@ describe('valibot', () => {
             withObjectType: true,
             scalarSchemas: {
               Date: 'v.date()',
-              Email: 'v.pipe(v.string(), v.email())',
+              Email: 'v.pipe(v.string(), v.email())'
             },
             scalars: {
               ID: {
                 input: 'number',
-                output: 'string',
-              },
-            },
+                output: 'string'
+              }
+            }
           },
-          {},
+          {}
         );
         expect(result.content).toMatchInlineSnapshot(`
           "
@@ -873,12 +893,12 @@ describe('valibot', () => {
             })
           }
           "
-        `)
+        `);
 
         for (const wantNotContain of ['Query', 'Mutation', 'Subscription'])
           expect(result.content).not.toContain(wantNotContain);
       });
-    })
+    });
     it('generate union types', async () => {
       const schema = buildSchema(/* GraphQL */ `
         type Square {
@@ -895,9 +915,9 @@ describe('valibot', () => {
         [],
         {
           schema: 'valibot',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
 
       expect(result.content).toMatchInlineSnapshot(`
@@ -921,9 +941,9 @@ describe('valibot', () => {
           return v.union([CircleSchema(), SquareSchema()])
         }
         "
-      `)
+      `);
     });
-  })
+  });
   it('generate union types & schemaNamespacedImportName', async () => {
     const schema = buildSchema(/* GraphQL */ `
       type Square {
@@ -942,9 +962,9 @@ describe('valibot', () => {
         schema: 'valibot',
         withObjectType: true,
         importFrom: './types',
-        schemaNamespacedImportName: 't',
+        schemaNamespacedImportName: 't'
       },
-      {},
+      {}
     );
 
     expect(result.content).toMatchInlineSnapshot(`
@@ -968,7 +988,7 @@ describe('valibot', () => {
         return v.union([CircleSchema(), SquareSchema()])
       }
       "
-    `)
+    `);
   });
   it('generate union types with single element', async () => {
     const schema = buildSchema(/* GraphQL */ `
@@ -990,9 +1010,9 @@ describe('valibot', () => {
       [],
       {
         schema: 'valibot',
-        withObjectType: true,
+        withObjectType: true
       },
-      {},
+      {}
     );
 
     expect(result.content).toMatchInlineSnapshot(`
@@ -1023,7 +1043,7 @@ describe('valibot', () => {
         })
       }
       "
-    `)
+    `);
   });
   it('correctly reference generated union types', async () => {
     const schema = buildSchema(/* GraphQL */ `
@@ -1038,9 +1058,9 @@ describe('valibot', () => {
       [],
       {
         schema: 'valibot',
-        withObjectType: true,
+        withObjectType: true
       },
-      {},
+      {}
     );
 
     expect(result.content).toMatchInlineSnapshot(`
@@ -1057,7 +1077,7 @@ describe('valibot', () => {
         return CircleSchema()
       }
       "
-    `)
+    `);
   });
   it('generate enum union types', async () => {
     const schema = buildSchema(/* GraphQL */ `
@@ -1079,9 +1099,9 @@ describe('valibot', () => {
       [],
       {
         schema: 'valibot',
-        withObjectType: true,
+        withObjectType: true
       },
-      {},
+      {}
     );
 
     expect(result.content).toMatchInlineSnapshot(`
@@ -1094,9 +1114,9 @@ describe('valibot', () => {
         return v.union([PageTypeSchema, MethodTypeSchema])
       }
       "
-    `)
+    `);
   });
-  it.todo('generate union types with single element, export as const')
+  it.todo('generate union types with single element, export as const');
   it('with object arguments', async () => {
     const schema = buildSchema(/* GraphQL */ `
       type MyType {
@@ -1111,10 +1131,10 @@ describe('valibot', () => {
         schema: 'valibot',
         withObjectType: true,
         scalars: {
-          Text: 'string',
-        },
+          Text: 'string'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -1136,7 +1156,7 @@ describe('valibot', () => {
         })
       }
       "
-    `)
+    `);
   });
   describe('with InterfaceType', () => {
     it('not generate if withObjectType false', async () => {
@@ -1151,9 +1171,9 @@ describe('valibot', () => {
         [],
         {
           schema: 'valibot',
-          withObjectType: false,
+          withObjectType: false
         },
-        {},
+        {}
       );
       expect(result.content).not.toContain('export function UserSchema(): v.GenericSchema<User>');
     });
@@ -1168,9 +1188,9 @@ describe('valibot', () => {
         [],
         {
           schema: 'valibot',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
       expect(result.content).toMatchInlineSnapshot(`
         "
@@ -1181,7 +1201,7 @@ describe('valibot', () => {
           })
         }
         "
-      `)
+      `);
     });
     it('generate interface type contains interface type', async () => {
       const schema = buildSchema(/* GraphQL */ `
@@ -1200,9 +1220,9 @@ describe('valibot', () => {
         [],
         {
           schema: 'valibot',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
       expect(result.content).toMatchInlineSnapshot(`
         "
@@ -1221,7 +1241,7 @@ describe('valibot', () => {
           })
         }
         "
-      `)
+      `);
     });
     it('generate object type contains interface type', async () => {
       const schema = buildSchema(/* GraphQL */ `
@@ -1252,9 +1272,9 @@ describe('valibot', () => {
         [],
         {
           schema: 'valibot',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
       expect(result.content).toMatchInlineSnapshot(`
         "
@@ -1292,11 +1312,11 @@ describe('valibot', () => {
           })
         }
         "
-      `)
+      `);
     });
-  })
-  it.todo('properly generates custom directive values')
-  it.todo('exports as const instead of func')
-  it.todo('generate both input & type, export as const')
-  it.todo('issue #394')
-})
+  });
+  it.todo('properly generates custom directive values');
+  it.todo('exports as const instead of func');
+  it.todo('generate both input & type, export as const');
+  it.todo('issue #394');
+});

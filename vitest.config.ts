@@ -9,8 +9,8 @@ export default defineConfig({
     exclude: ['node_modules', 'dist', 'example', '.idea', '.git', '.cache', '.github'],
     server: {
       deps: {
-        fallbackCJS: true,
-      },
-    },
-  },
+        fallbackCJS: true
+      }
+    }
+  }
 });

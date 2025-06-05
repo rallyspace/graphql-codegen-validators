@@ -22,7 +22,7 @@ describe('yup', () => {
       [
         "import * as yup from 'yup'",
       ]
-    `)
+    `);
 
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -37,7 +37,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('optional', async () => {
@@ -69,7 +69,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('array', async () => {
@@ -101,7 +101,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('ref input object', async () => {
@@ -141,7 +141,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('ref input object w/ schemaNamespacedImportName', async () => {
@@ -158,7 +158,12 @@ describe('yup', () => {
     `;
 
     const schema = buildSchema(textSchema);
-    const result = await plugin(schema, [], { importFrom: './types', schemaNamespacedImportName: 't' }, {});
+    const result = await plugin(
+      schema,
+      [],
+      { importFrom: './types', schemaNamespacedImportName: 't' },
+      {}
+    );
 
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -181,7 +186,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('nested input object', async () => {
@@ -195,9 +200,9 @@ describe('yup', () => {
       schema,
       [],
       {
-        scalars: undefined,
+        scalars: undefined
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -209,7 +214,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('enum', async () => {
@@ -226,9 +231,9 @@ describe('yup', () => {
       schema,
       [],
       {
-        scalars: undefined,
+        scalars: undefined
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -240,7 +245,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('enum w/ schemaNamespacedImportName', async () => {
@@ -259,9 +264,9 @@ describe('yup', () => {
       {
         scalars: undefined,
         importFrom: './',
-        schemaNamespacedImportName: 't',
+        schemaNamespacedImportName: 't'
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -273,7 +278,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('camelcase', async () => {
@@ -294,9 +299,9 @@ describe('yup', () => {
       schema,
       [],
       {
-        scalars: undefined,
+        scalars: undefined
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -309,7 +314,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with scalars', async () => {
@@ -328,10 +333,10 @@ describe('yup', () => {
       {
         scalars: {
           Text: 'string',
-          Count: 'number',
-        },
+          Count: 'number'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -343,7 +348,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with importFrom', async () => {
@@ -356,16 +361,16 @@ describe('yup', () => {
       schema,
       [],
       {
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as yup from 'yup'",
         "import { Say } from './types'",
       ]
-    `)
+    `);
     expect(result.content).toMatchInlineSnapshot(`
       "
 
@@ -375,7 +380,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with importFrom & schemaNamespacedImportName', async () => {
@@ -389,16 +394,16 @@ describe('yup', () => {
       [],
       {
         importFrom: './types',
-        schemaNamespacedImportName: 't',
+        schemaNamespacedImportName: 't'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as yup from 'yup'",
         "import * as t from './types'",
       ]
-    `)
+    `);
     expect(result.content).toMatchInlineSnapshot(`
       "
 
@@ -408,7 +413,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with importFrom & useTypeImports', async () => {
@@ -422,16 +427,16 @@ describe('yup', () => {
       [],
       {
         importFrom: './types',
-        useTypeImports: true,
+        useTypeImports: true
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as yup from 'yup'",
         "import type { Say } from './types'",
       ]
-    `)
+    `);
     expect(result.content).toMatchInlineSnapshot(`
       "
 
@@ -441,7 +446,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with enumsAsTypes', async () => {
@@ -455,15 +460,15 @@ describe('yup', () => {
       schema,
       [],
       {
-        enumsAsTypes: true,
+        enumsAsTypes: true
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
       export const PageTypeSchema = yup.string().oneOf(['PUBLIC', 'BASIC_AUTH']).defined();
       "
-    `)
+    `);
   });
 
   it('with enumsAsTypes + schemaNamespacedImportName', async () => {
@@ -479,15 +484,15 @@ describe('yup', () => {
       {
         enumsAsTypes: true,
         importFrom: './types',
-        schemaNamespacedImportName: 't',
+        schemaNamespacedImportName: 't'
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
       export const PageTypeSchema = yup.string().oneOf(['PUBLIC', 'BASIC_AUTH']).defined();
       "
-    `)
+    `);
   });
 
   it('with notAllowEmptyString', async () => {
@@ -506,10 +511,10 @@ describe('yup', () => {
       {
         notAllowEmptyString: true,
         scalars: {
-          ID: 'string',
-        },
+          ID: 'string'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -524,7 +529,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with notAllowEmptyString issue #386', async () => {
@@ -544,10 +549,10 @@ describe('yup', () => {
         schema: 'yup',
         notAllowEmptyString: true,
         scalars: {
-          ID: 'string',
-        },
+          ID: 'string'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -564,7 +569,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with scalarSchemas', async () => {
@@ -583,10 +588,10 @@ describe('yup', () => {
       {
         scalarSchemas: {
           Date: 'yup.date()',
-          Email: 'yup.string().email()',
-        },
+          Email: 'yup.string().email()'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -599,7 +604,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with defaultScalarTypeSchema', async () => {
@@ -617,11 +622,11 @@ describe('yup', () => {
       [],
       {
         scalarSchemas: {
-          Email: 'yup.string().email()',
+          Email: 'yup.string().email()'
         },
-        defaultScalarTypeSchema: 'yup.string()',
+        defaultScalarTypeSchema: 'yup.string()'
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -634,7 +639,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with typesPrefix', async () => {
@@ -648,16 +653,16 @@ describe('yup', () => {
       [],
       {
         typesPrefix: 'I',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as yup from 'yup'",
         "import { ISay } from './types'",
       ]
-    `)
+    `);
     expect(result.content).toMatchInlineSnapshot(`
       "
 
@@ -667,7 +672,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with typesSuffix', async () => {
@@ -681,16 +686,16 @@ describe('yup', () => {
       [],
       {
         typesSuffix: 'I',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
     expect(result.prepend).toMatchInlineSnapshot(`
       [
         "import * as yup from 'yup'",
         "import { SayI } from './types'",
       ]
-    `)
+    `);
     expect(result.content).toMatchInlineSnapshot(`
       "
 
@@ -700,7 +705,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   describe('with withObjectType', () => {
@@ -715,11 +720,13 @@ describe('yup', () => {
         schema,
         [],
         {
-          schema: 'yup',
+          schema: 'yup'
         },
-        {},
+        {}
       );
-      expect(result.content).not.toContain('export function UserSchema(): yup.ObjectSchema<User> {');
+      expect(result.content).not.toContain(
+        'export function UserSchema(): yup.ObjectSchema<User> {'
+      );
     });
 
     it('generate object type contains object type', async () => {
@@ -744,9 +751,9 @@ describe('yup', () => {
         [],
         {
           schema: 'yup',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
       expect(result.content).toMatchInlineSnapshot(`
         "
@@ -781,7 +788,7 @@ describe('yup', () => {
           })
         }
         "
-      `)
+      `);
 
       for (const wantNotContain of ['Query', 'Mutation', 'Subscription'])
         expect(result.content).not.toContain(wantNotContain);
@@ -830,16 +837,16 @@ describe('yup', () => {
           withObjectType: true,
           scalarSchemas: {
             Date: 'yup.date()',
-            Email: 'yup.string().email()',
+            Email: 'yup.string().email()'
           },
           scalars: {
             ID: {
               input: 'number',
-              output: 'string',
-            },
-          },
+              output: 'string'
+            }
+          }
         },
-        {},
+        {}
       );
       expect(result.content).toMatchInlineSnapshot(`
         "
@@ -877,7 +884,7 @@ describe('yup', () => {
           })
         }
         "
-      `)
+      `);
 
       for (const wantNotContain of ['Query', 'Mutation', 'Subscription'])
         expect(result.content).not.toContain(wantNotContain);
@@ -901,9 +908,9 @@ describe('yup', () => {
           schema: 'yup',
           withObjectType: true,
           importFrom: './types',
-          schemaNamespacedImportName: 't',
+          schemaNamespacedImportName: 't'
         },
-        {},
+        {}
       );
 
       expect(result.content).toMatchInlineSnapshot(`
@@ -933,7 +940,7 @@ describe('yup', () => {
           return union<t.Shape>(CircleSchema(), SquareSchema())
         }
         "
-      `)
+      `);
     });
 
     it('generate union types with single element', async () => {
@@ -956,9 +963,9 @@ describe('yup', () => {
         [],
         {
           schema: 'yup',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
 
       expect(result.content).toMatchInlineSnapshot(`
@@ -995,7 +1002,7 @@ describe('yup', () => {
           })
         }
         "
-      `)
+      `);
     });
 
     it('correctly reference generated union types', async () => {
@@ -1011,9 +1018,9 @@ describe('yup', () => {
         [],
         {
           schema: 'yup',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
 
       expect(result.content).toMatchInlineSnapshot(`
@@ -1036,7 +1043,7 @@ describe('yup', () => {
           return union<Shape>(CircleSchema())
         }
         "
-      `)
+      `);
     });
 
     it('generate enum union types', async () => {
@@ -1059,9 +1066,9 @@ describe('yup', () => {
         [],
         {
           schema: 'yup',
-          withObjectType: true,
+          withObjectType: true
         },
-        {},
+        {}
       );
 
       expect(result.content).toMatchInlineSnapshot(`
@@ -1080,7 +1087,7 @@ describe('yup', () => {
           return union<AnyType>(PageTypeSchema, MethodTypeSchema)
         }
         "
-      `)
+      `);
     });
 
     it('generate union types with single element, export as const', async () => {
@@ -1104,9 +1111,9 @@ describe('yup', () => {
         {
           schema: 'yup',
           withObjectType: true,
-          validationSchemaExportType: 'const',
+          validationSchemaExportType: 'const'
         },
-        {},
+        {}
       );
 
       expect(result.content).toMatchInlineSnapshot(`
@@ -1135,7 +1142,7 @@ describe('yup', () => {
             shape: ShapeSchema.nullable().optional()
         });
         "
-      `)
+      `);
     });
 
     it('with object arguments', async () => {
@@ -1152,10 +1159,10 @@ describe('yup', () => {
           schema: 'yup',
           withObjectType: true,
           scalars: {
-            Text: 'string',
-          },
+            Text: 'string'
+          }
         },
-        {},
+        {}
       );
       expect(result.content).toMatchInlineSnapshot(`
         "
@@ -1183,7 +1190,7 @@ describe('yup', () => {
           })
         }
         "
-      `)
+      `);
     });
 
     describe('with InterfaceType', () => {
@@ -1199,11 +1206,13 @@ describe('yup', () => {
           [],
           {
             schema: 'yup',
-            withObjectType: false,
+            withObjectType: false
           },
-          {},
+          {}
         );
-        expect(result.content).not.toContain('export function UserSchema(): yup.ObjectSchema<User> {');
+        expect(result.content).not.toContain(
+          'export function UserSchema(): yup.ObjectSchema<User> {'
+        );
       });
 
       it('generate if withObjectType true', async () => {
@@ -1217,9 +1226,9 @@ describe('yup', () => {
           [],
           {
             schema: 'yup',
-            withObjectType: true,
+            withObjectType: true
           },
-          {},
+          {}
         );
         expect(result.content).toMatchInlineSnapshot(`
           "
@@ -1236,9 +1245,9 @@ describe('yup', () => {
             })
           }
           "
-        `)
+        `);
 
-        const wantNotContains = ['__typename: yup.string<\'Book\'>().optional()'];
+        const wantNotContains = ["__typename: yup.string<'Book'>().optional()"];
         for (const wantNotContain of wantNotContains)
           expect(result.content).not.toContain(wantNotContain);
       });
@@ -1265,9 +1274,9 @@ describe('yup', () => {
           [],
           {
             schema: 'yup',
-            withObjectType: true,
+            withObjectType: true
           },
-          {},
+          {}
         );
         expect(result.content).toMatchInlineSnapshot(`
           "
@@ -1299,7 +1308,7 @@ describe('yup', () => {
             })
           }
           "
-        `)
+        `);
 
         for (const wantNotContain of ['Query', 'Mutation', 'Subscription'])
           expect(result.content).not.toContain(wantNotContain);
@@ -1333,9 +1342,9 @@ describe('yup', () => {
           [],
           {
             schema: 'yup',
-            withObjectType: true,
+            withObjectType: true
           },
-          {},
+          {}
         );
         expect(result.content).toMatchInlineSnapshot(`
           "
@@ -1379,7 +1388,7 @@ describe('yup', () => {
             })
           }
           "
-        `)
+        `);
       });
     });
   });
@@ -1401,11 +1410,11 @@ describe('yup', () => {
           constraint: {
             min: 'min',
             max: 'max',
-            startsWith: ['matches', '/^$1/'],
-          },
-        },
+            startsWith: ['matches', '/^$1/']
+          }
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -1417,7 +1426,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('exports as const instead of func', async () => {
@@ -1431,9 +1440,9 @@ describe('yup', () => {
       [],
       {
         schema: 'yup',
-        validationSchemaExportType: 'const',
+        validationSchemaExportType: 'const'
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -1442,7 +1451,7 @@ describe('yup', () => {
           phrase: yup.string().defined().nonNullable()
       });
       "
-    `)
+    `);
   });
 
   it('generate both input & type, export as const', async () => {
@@ -1480,11 +1489,11 @@ describe('yup', () => {
         withObjectType: true,
         scalarSchemas: {
           Date: 'yup.date()',
-          Email: 'yup.string().email()',
+          Email: 'yup.string().email()'
         },
-        validationSchemaExportType: 'const',
+        validationSchemaExportType: 'const'
       },
-      {},
+      {}
     );
 
     expect(result.content).toMatchInlineSnapshot(`
@@ -1512,7 +1521,7 @@ describe('yup', () => {
           email: yup.string().email().defined().nonNullable()
       });
       "
-    `)
+    `);
 
     for (const wantNotContain of ['Query', 'Mutation', 'Subscription'])
       expect(result.content).not.toContain(wantNotContain);
@@ -1541,10 +1550,10 @@ describe('yup', () => {
       {
         schema: 'yup',
         scalars: {
-          ID: 'string',
-        },
+          ID: 'string'
+        }
       },
-      {},
+      {}
     );
     expect(result.content).toMatchInlineSnapshot(`
       "
@@ -1556,7 +1565,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with default input values', async () => {
@@ -1579,9 +1588,9 @@ describe('yup', () => {
       [],
       {
         schema: 'yup',
-        importFrom: './types',
+        importFrom: './types'
       },
-      {},
+      {}
     );
 
     expect(result.content).toMatchInlineSnapshot(`
@@ -1599,7 +1608,7 @@ describe('yup', () => {
         })
       }
       "
-    `)
+    `);
   });
 
   it('with default input values as enum types', async () => {
@@ -1622,21 +1631,33 @@ describe('yup', () => {
       {
         schema: 'yup',
         importFrom: './types',
-        useEnumTypeAsDefaultValue: true,
+        useEnumTypeAsDefaultValue: true
       },
-      {},
+      {}
     );
 
     expect(result.content).toContain(
-      'export const PageTypeSchema = yup.string<PageType>().oneOf(Object.values(PageType)).defined()',
+      'export const PageTypeSchema = yup.string<PageType>().oneOf(Object.values(PageType)).defined()'
     );
-    expect(result.content).toContain('export function PageInputSchema(): yup.ObjectSchema<PageInput>');
+    expect(result.content).toContain(
+      'export function PageInputSchema(): yup.ObjectSchema<PageInput>'
+    );
 
-    expect(result.content).toContain('pageType: PageTypeSchema.nonNullable().default(PageType.Public)');
-    expect(result.content).toContain('greeting: yup.string().defined().nullable().default("Hello").optional()');
-    expect(result.content).toContain('score: yup.number().defined().nullable().default(100).optional()');
-    expect(result.content).toContain('ratio: yup.number().defined().nullable().default(0.5).optional()');
-    expect(result.content).toContain('isMember: yup.boolean().defined().nullable().default(true).optional()');
+    expect(result.content).toContain(
+      'pageType: PageTypeSchema.nonNullable().default(PageType.Public)'
+    );
+    expect(result.content).toContain(
+      'greeting: yup.string().defined().nullable().default("Hello").optional()'
+    );
+    expect(result.content).toContain(
+      'score: yup.number().defined().nullable().default(100).optional()'
+    );
+    expect(result.content).toContain(
+      'ratio: yup.number().defined().nullable().default(0.5).optional()'
+    );
+    expect(result.content).toContain(
+      'isMember: yup.boolean().defined().nullable().default(true).optional()'
+    );
   });
 
   it('with default input values as enum types with underscores', async () => {
@@ -1659,21 +1680,33 @@ describe('yup', () => {
       {
         schema: 'yup',
         importFrom: './types',
-        useEnumTypeAsDefaultValue: true,
+        useEnumTypeAsDefaultValue: true
       },
-      {},
+      {}
     );
 
     expect(result.content).toContain(
-      'export const PageTypeSchema = yup.string<PageType>().oneOf(Object.values(PageType)).defined()',
+      'export const PageTypeSchema = yup.string<PageType>().oneOf(Object.values(PageType)).defined()'
     );
-    expect(result.content).toContain('export function PageInputSchema(): yup.ObjectSchema<PageInput>');
+    expect(result.content).toContain(
+      'export function PageInputSchema(): yup.ObjectSchema<PageInput>'
+    );
 
-    expect(result.content).toContain('pageType: PageTypeSchema.nonNullable().default(PageType.Basic_Auth)');
-    expect(result.content).toContain('greeting: yup.string().defined().nullable().default("Hello").optional()');
-    expect(result.content).toContain('score: yup.number().defined().nullable().default(100).optional()');
-    expect(result.content).toContain('ratio: yup.number().defined().nullable().default(0.5).optional()');
-    expect(result.content).toContain('isMember: yup.boolean().defined().nullable().default(true).optional()');
+    expect(result.content).toContain(
+      'pageType: PageTypeSchema.nonNullable().default(PageType.Basic_Auth)'
+    );
+    expect(result.content).toContain(
+      'greeting: yup.string().defined().nullable().default("Hello").optional()'
+    );
+    expect(result.content).toContain(
+      'score: yup.number().defined().nullable().default(100).optional()'
+    );
+    expect(result.content).toContain(
+      'ratio: yup.number().defined().nullable().default(0.5).optional()'
+    );
+    expect(result.content).toContain(
+      'isMember: yup.boolean().defined().nullable().default(true).optional()'
+    );
   });
 
   it('with default input values as enum types with no underscores', async () => {
@@ -1698,21 +1731,33 @@ describe('yup', () => {
         importFrom: './types',
         useEnumTypeAsDefaultValue: true,
         namingConvention: {
-          transformUnderscore: true,
-        },
+          transformUnderscore: true
+        }
       },
-      {},
+      {}
     );
 
     expect(result.content).toContain(
-      'export const PageTypeSchema = yup.string<PageType>().oneOf(Object.values(PageType)).defined()',
+      'export const PageTypeSchema = yup.string<PageType>().oneOf(Object.values(PageType)).defined()'
     );
-    expect(result.content).toContain('export function PageInputSchema(): yup.ObjectSchema<PageInput>');
+    expect(result.content).toContain(
+      'export function PageInputSchema(): yup.ObjectSchema<PageInput>'
+    );
 
-    expect(result.content).toContain('pageType: PageTypeSchema.nonNullable().default(PageType.BasicAuth)');
-    expect(result.content).toContain('greeting: yup.string().defined().nullable().default("Hello").optional()');
-    expect(result.content).toContain('score: yup.number().defined().nullable().default(100).optional()');
-    expect(result.content).toContain('ratio: yup.number().defined().nullable().default(0.5).optional()');
-    expect(result.content).toContain('isMember: yup.boolean().defined().nullable().default(true).optional()');
+    expect(result.content).toContain(
+      'pageType: PageTypeSchema.nonNullable().default(PageType.BasicAuth)'
+    );
+    expect(result.content).toContain(
+      'greeting: yup.string().defined().nullable().default("Hello").optional()'
+    );
+    expect(result.content).toContain(
+      'score: yup.number().defined().nullable().default(100).optional()'
+    );
+    expect(result.content).toContain(
+      'ratio: yup.number().defined().nullable().default(0.5).optional()'
+    );
+    expect(result.content).toContain(
+      'isMember: yup.boolean().defined().nullable().default(true).optional()'
+    );
   });
 });

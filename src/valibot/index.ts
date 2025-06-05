@@ -8,7 +8,7 @@ import type {
   NameNode,
   ObjectTypeDefinitionNode,
   TypeNode,
-  UnionTypeDefinitionNode,
+  UnionTypeDefinitionNode
 } from 'graphql';
 import type { ValidationSchemaPluginConfig } from '../config.js';
 import type { Visitor } from '../visitor.js';
@@ -21,7 +21,7 @@ import {
   isListType,
   isNamedType,
   isNonNullType,
-  ObjectTypeDefinitionBuilder,
+  ObjectTypeDefinitionBuilder
 } from '../graphql.js';
 import { BaseSchemaVisitor } from '../schema_visitor.js';
 
@@ -35,11 +35,7 @@ export class ValibotSchemaVisitor extends BaseSchemaVisitor {
   }
 
   initialEmit(): string {
-    return (
-      `\n${[
-        ...this.enumDeclarations,
-      ].join('\n')}`
-    );
+    return `\n${[...this.enumDeclarations].join('\n')}`;
   }
 
   get InputObjectTypeDefinition() {
@@ -49,74 +45,83 @@ export class ValibotSchemaVisitor extends BaseSchemaVisitor {
         const name = visitor.convertName(node.name.value);
         this.importTypes.push(name);
         return this.buildInputFields(node.fields ?? [], visitor, name);
-      },
+      }
     };
   }
 
   get InterfaceTypeDefinition() {
     return {
-      leave: InterfaceTypeDefinitionBuilder(this.config.withObjectType, (node: InterfaceTypeDefinitionNode) => {
-        const visitor = this.createVisitor('output');
-        const name = visitor.convertName(node.name.value);
-        const typeName = visitor.prefixTypeNamespace(name);
-        this.importTypes.push(name);
+      leave: InterfaceTypeDefinitionBuilder(
+        this.config.withObjectType,
+        (node: InterfaceTypeDefinitionNode) => {
+          const visitor = this.createVisitor('output');
+          const name = visitor.convertName(node.name.value);
+          const typeName = visitor.prefixTypeNamespace(name);
+          this.importTypes.push(name);
 
-        // Building schema for field arguments.
-        const argumentBlocks = this.buildTypeDefinitionArguments(node, visitor);
-        const appendArguments = argumentBlocks ? `\n${argumentBlocks}` : '';
+          // Building schema for field arguments.
+          const argumentBlocks = this.buildTypeDefinitionArguments(node, visitor);
+          const appendArguments = argumentBlocks ? `\n${argumentBlocks}` : '';
 
-        // Building schema for fields.
-        const shape = node.fields?.map(field => generateFieldValibotSchema(this.config, visitor, field, 2)).join(',\n');
+          // Building schema for fields.
+          const shape = node.fields
+            ?.map((field) => generateFieldValibotSchema(this.config, visitor, field, 2))
+            .join(',\n');
 
-        switch (this.config.validationSchemaExportType) {
-          default:
-            return (
-              new DeclarationBlock({})
-                .export()
-                .asKind('function')
-                .withName(`${name}Schema(): v.GenericSchema<${typeName}>`)
-                .withBlock([indent(`return v.object({`), shape, indent('})')].join('\n'))
-                .string + appendArguments
-            );
+          switch (this.config.validationSchemaExportType) {
+            default:
+              return (
+                new DeclarationBlock({})
+                  .export()
+                  .asKind('function')
+                  .withName(`${name}Schema(): v.GenericSchema<${typeName}>`)
+                  .withBlock([indent(`return v.object({`), shape, indent('})')].join('\n')).string +
+                appendArguments
+              );
+          }
         }
-      }),
+      )
     };
   }
 
   get ObjectTypeDefinition() {
     return {
-      leave: ObjectTypeDefinitionBuilder(this.config.withObjectType, (node: ObjectTypeDefinitionNode) => {
-        const visitor = this.createVisitor('output');
-        const name = visitor.convertName(node.name.value);
-        const typeName = visitor.prefixTypeNamespace(name);
-        this.importTypes.push(name);
+      leave: ObjectTypeDefinitionBuilder(
+        this.config.withObjectType,
+        (node: ObjectTypeDefinitionNode) => {
+          const visitor = this.createVisitor('output');
+          const name = visitor.convertName(node.name.value);
+          const typeName = visitor.prefixTypeNamespace(name);
+          this.importTypes.push(name);
 
-        // Building schema for field arguments.
-        const argumentBlocks = this.buildTypeDefinitionArguments(node, visitor);
-        const appendArguments = argumentBlocks ? `\n${argumentBlocks}` : '';
+          // Building schema for field arguments.
+          const argumentBlocks = this.buildTypeDefinitionArguments(node, visitor);
+          const appendArguments = argumentBlocks ? `\n${argumentBlocks}` : '';
 
-        // Building schema for fields.
-        const shape = node.fields?.map(field => generateFieldValibotSchema(this.config, visitor, field, 2)).join(',\n');
+          // Building schema for fields.
+          const shape = node.fields
+            ?.map((field) => generateFieldValibotSchema(this.config, visitor, field, 2))
+            .join(',\n');
 
-        switch (this.config.validationSchemaExportType) {
-          default:
-            return (
-              new DeclarationBlock({})
-                .export()
-                .asKind('function')
-                .withName(`${name}Schema(): v.GenericSchema<${typeName}>`)
-                .withBlock(
-                  [
-                    indent(`return v.object({`),
-                    indent(`__typename: v.optional(v.literal('${node.name.value}')),`, 2),
-                    shape,
-                    indent('})'),
-                  ].join('\n'),
-                )
-                .string + appendArguments
-            );
+          switch (this.config.validationSchemaExportType) {
+            default:
+              return (
+                new DeclarationBlock({})
+                  .export()
+                  .asKind('function')
+                  .withName(`${name}Schema(): v.GenericSchema<${typeName}>`)
+                  .withBlock(
+                    [
+                      indent(`return v.object({`),
+                      indent(`__typename: v.optional(v.literal('${node.name.value}')),`, 2),
+                      shape,
+                      indent('})')
+                    ].join('\n')
+                  ).string + appendArguments
+              );
+          }
         }
-      }),
+      )
     };
   }
 
@@ -132,40 +137,40 @@ export class ValibotSchemaVisitor extends BaseSchemaVisitor {
         this.enumDeclarations.push(
           this.config.enumsAsTypes
             ? new DeclarationBlock({})
-              .export()
-              .asKind('const')
-              .withName(`${enumname}Schema`)
-              .withContent(`v.picklist([${node.values?.map(enumOption => `'${enumOption.name.value}'`).join(', ')}])`)
-              .string
+                .export()
+                .asKind('const')
+                .withName(`${enumname}Schema`)
+                .withContent(
+                  `v.picklist([${node.values?.map((enumOption) => `'${enumOption.name.value}'`).join(', ')}])`
+                ).string
             : new DeclarationBlock({})
-              .export()
-              .asKind('const')
-              .withName(`${enumname}Schema`)
-              .withContent(`v.enum_(${enumTypeName})`)
-              .string,
+                .export()
+                .asKind('const')
+                .withName(`${enumname}Schema`)
+                .withContent(`v.enum_(${enumTypeName})`).string
         );
-      },
+      }
     };
   }
 
   get UnionTypeDefinition() {
     return {
       leave: (node: UnionTypeDefinitionNode) => {
-        if (!node.types || !this.config.withObjectType)
-          return;
+        if (!node.types || !this.config.withObjectType) return;
         const visitor = this.createVisitor('output');
         const unionName = visitor.convertName(node.name.value);
-        const unionElements = node.types.map((t) => {
-          const element = visitor.convertName(t.name.value);
-          const typ = visitor.getType(t.name.value);
-          if (typ?.astNode?.kind === 'EnumTypeDefinition')
-            return `${element}Schema`;
+        const unionElements = node.types
+          .map((t) => {
+            const element = visitor.convertName(t.name.value);
+            const typ = visitor.getType(t.name.value);
+            if (typ?.astNode?.kind === 'EnumTypeDefinition') return `${element}Schema`;
 
-          switch (this.config.validationSchemaExportType) {
-            default:
-              return `${element}Schema()`;
-          }
-        }).join(', ');
+            switch (this.config.validationSchemaExportType) {
+              default:
+                return `${element}Schema()`;
+            }
+          })
+          .join(', ');
         const unionElementsCount = node.types.length ?? 0;
 
         const union = unionElementsCount > 1 ? `v.union([${unionElements}])` : unionElements;
@@ -176,20 +181,21 @@ export class ValibotSchemaVisitor extends BaseSchemaVisitor {
               .export()
               .asKind('function')
               .withName(`${unionName}Schema()`)
-              .withBlock(indent(`return ${union}`))
-              .string;
+              .withBlock(indent(`return ${union}`)).string;
         }
-      },
+      }
     };
   }
 
   protected buildInputFields(
     fields: readonly (FieldDefinitionNode | InputValueDefinitionNode)[],
     visitor: Visitor,
-    name: string,
+    name: string
   ) {
     const typeName = visitor.prefixTypeNamespace(name);
-    const shape = fields.map(field => generateFieldValibotSchema(this.config, visitor, field, 2)).join(',\n');
+    const shape = fields
+      .map((field) => generateFieldValibotSchema(this.config, visitor, field, 2))
+      .join(',\n');
 
     switch (this.config.validationSchemaExportType) {
       default:
@@ -197,23 +203,32 @@ export class ValibotSchemaVisitor extends BaseSchemaVisitor {
           .export()
           .asKind('function')
           .withName(`${name}Schema(): v.GenericSchema<${typeName}>`)
-          .withBlock([indent(`return v.object({`), shape, indent('})')].join('\n'))
-          .string;
+          .withBlock([indent(`return v.object({`), shape, indent('})')].join('\n')).string;
     }
   }
 }
 
-function generateFieldValibotSchema(config: ValidationSchemaPluginConfig, visitor: Visitor, field: InputValueDefinitionNode | FieldDefinitionNode, indentCount: number): string {
+function generateFieldValibotSchema(
+  config: ValidationSchemaPluginConfig,
+  visitor: Visitor,
+  field: InputValueDefinitionNode | FieldDefinitionNode,
+  indentCount: number
+): string {
   const gen = generateFieldTypeValibotSchema(config, visitor, field, field.type);
   return indent(`${field.name.value}: ${maybeLazy(field.type, gen)}`, indentCount);
 }
 
-function generateFieldTypeValibotSchema(config: ValidationSchemaPluginConfig, visitor: Visitor, field: InputValueDefinitionNode | FieldDefinitionNode, type: TypeNode, parentType?: TypeNode): string {
+function generateFieldTypeValibotSchema(
+  config: ValidationSchemaPluginConfig,
+  visitor: Visitor,
+  field: InputValueDefinitionNode | FieldDefinitionNode,
+  type: TypeNode,
+  parentType?: TypeNode
+): string {
   if (isListType(type)) {
     const gen = generateFieldTypeValibotSchema(config, visitor, field, type.type, type);
     const arrayGen = `v.array(${maybeLazy(type.type, gen)})`;
-    if (!isNonNullType(parentType))
-      return `v.nullish(${arrayGen})`;
+    if (!isNonNullType(parentType)) return `v.nullish(${arrayGen})`;
 
     return arrayGen;
   }
@@ -223,8 +238,7 @@ function generateFieldTypeValibotSchema(config: ValidationSchemaPluginConfig, vi
   }
   if (isNamedType(type)) {
     const gen = generateNameNodeValibotSchema(config, visitor, type.name);
-    if (isListType(parentType))
-      return `v.nullable(${gen})`;
+    if (isListType(parentType)) return `v.nullable(${gen})`;
 
     const actions = actionsFromDirectives(config, field);
 
@@ -242,7 +256,10 @@ function generateFieldTypeValibotSchema(config: ValidationSchemaPluginConfig, vi
   return '';
 }
 
-function actionsFromDirectives(config: ValidationSchemaPluginConfig, field: InputValueDefinitionNode | FieldDefinitionNode): string[] {
+function actionsFromDirectives(
+  config: ValidationSchemaPluginConfig,
+  field: InputValueDefinitionNode | FieldDefinitionNode
+): string[] {
   if (config.directives && field.directives) {
     const formatted = formatDirectiveConfig(config.directives);
     return buildApiForValibot(formatted, field.directives);
@@ -252,13 +269,16 @@ function actionsFromDirectives(config: ValidationSchemaPluginConfig, field: Inpu
 }
 
 function pipeSchemaAndActions(schema: string, actions: string[]): string {
-  if (actions.length === 0)
-    return schema;
+  if (actions.length === 0) return schema;
 
   return `v.pipe(${schema}, ${actions.join(', ')})`;
 }
 
-function generateNameNodeValibotSchema(config: ValidationSchemaPluginConfig, visitor: Visitor, node: NameNode): string {
+function generateNameNodeValibotSchema(
+  config: ValidationSchemaPluginConfig,
+  visitor: Visitor,
+  node: NameNode
+): string {
   const converter = visitor.getNameNodeConverter(node);
 
   switch (converter?.targetKind) {
@@ -276,23 +296,24 @@ function generateNameNodeValibotSchema(config: ValidationSchemaPluginConfig, vis
     case 'ScalarTypeDefinition':
       return valibot4Scalar(config, visitor, node.value);
     default:
-      if (converter?.targetKind)
-        console.warn('Unknown targetKind', converter?.targetKind);
+      if (converter?.targetKind) console.warn('Unknown targetKind', converter?.targetKind);
 
       return valibot4Scalar(config, visitor, node.value);
   }
 }
 
 function maybeLazy(type: TypeNode, schema: string): string {
-  if (isNamedType(type) && isInput(type.name.value))
-    return `v.lazy(() => ${schema})`;
+  if (isNamedType(type) && isInput(type.name.value)) return `v.lazy(() => ${schema})`;
 
   return schema;
 }
 
-function valibot4Scalar(config: ValidationSchemaPluginConfig, visitor: Visitor, scalarName: string): string {
-  if (config.scalarSchemas?.[scalarName])
-    return config.scalarSchemas[scalarName];
+function valibot4Scalar(
+  config: ValidationSchemaPluginConfig,
+  visitor: Visitor,
+  scalarName: string
+): string {
+  if (config.scalarSchemas?.[scalarName]) return config.scalarSchemas[scalarName];
 
   const tsType = visitor.getScalarType(scalarName);
   switch (tsType) {

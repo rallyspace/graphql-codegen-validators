@@ -3,7 +3,7 @@ import type {
   GraphQLSchema,
   InputValueDefinitionNode,
   InterfaceTypeDefinitionNode,
-  ObjectTypeDefinitionNode,
+  ObjectTypeDefinitionNode
 } from 'graphql';
 
 import type { ValidationSchemaPluginConfig } from './config.js';
@@ -16,7 +16,7 @@ export abstract class BaseSchemaVisitor implements SchemaVisitor {
 
   constructor(
     protected schema: GraphQLSchema,
-    protected config: ValidationSchemaPluginConfig,
+    protected config: ValidationSchemaPluginConfig
   ) {}
 
   public getSchema() {
@@ -35,7 +35,7 @@ export abstract class BaseSchemaVisitor implements SchemaVisitor {
 
       return [
         this.importValidationSchema(),
-        `import ${importCore} from '${this.config.importFrom}'`,
+        `import ${importCore} from '${this.config.importFrom}'`
       ];
     }
     return [this.importValidationSchema()];
@@ -55,7 +55,7 @@ export abstract class BaseSchemaVisitor implements SchemaVisitor {
 
   protected buildTypeDefinitionArguments(
     node: ObjectTypeDefinitionNode | InterfaceTypeDefinitionNode,
-    visitor: Visitor,
+    visitor: Visitor
   ) {
     return visitor.buildArgumentsSchemaBlock(node, (typeName, field) => {
       this.importTypes.push(typeName);

@@ -6,6 +6,6 @@ You can use yup [shape API](https://github.com/jquense/yup#objectshapefields-obj
 
 ```ts
 const AttributeInputSchemaWithUUID = AttributeInputSchema().shape({
-  key: z.string().uuid(),
+  key: z.string().uuid()
 });
 ```

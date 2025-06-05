@@ -17,17 +17,22 @@ describe('isConvertableRegexp', () => {
 
       `/^[a-z]+:[\\/]$/i`,
 
-      `/^(?:d{3}|(d{3}))([-/.])d{3}\\1d{4}$/`,
+      `/^(?:d{3}|(d{3}))([-/.])d{3}\\1d{4}$/`
     ])('%s', (maybeRegexp) => {
       expect(isConvertableRegexp(maybeRegexp)).toBeTruthy();
     });
   });
   describe('does not match', () => {
-    it.each(['hello', '/world', 'world/', 'https://example.com/', '  /hello/', '/hello/d  ', '/hello/dgimsuy  '])(
-      '%s',
-      (maybeRegexp) => {
-        expect(isConvertableRegexp(maybeRegexp)).toBeFalsy();
-      },
-    );
+    it.each([
+      'hello',
+      '/world',
+      'world/',
+      'https://example.com/',
+      '  /hello/',
+      '/hello/d  ',
+      '/hello/dgimsuy  '
+    ])('%s', (maybeRegexp) => {
+      expect(isConvertableRegexp(maybeRegexp)).toBeFalsy();
+    });
   });
 });

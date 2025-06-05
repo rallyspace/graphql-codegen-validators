@@ -3,7 +3,7 @@ import type { DirectiveConfig, DirectiveObjectArguments } from '../src/config';
 import type {
   FormattedDirectiveArguments,
   FormattedDirectiveConfig,
-  FormattedDirectiveObjectArguments,
+  FormattedDirectiveObjectArguments
 } from '../src/directive';
 
 import { Kind, parseConstValue } from 'graphql';
@@ -12,17 +12,20 @@ import {
   buildApiForValibot,
   exportedForTesting,
   formatDirectiveConfig,
-  formatDirectiveObjectArguments,
+  formatDirectiveObjectArguments
 } from '../src/directive';
 
-const { applyArgToApiSchemaTemplate, buildApiFromDirectiveObjectArguments, buildApiFromDirectiveArguments }
-  = exportedForTesting;
+const {
+  applyArgToApiSchemaTemplate,
+  buildApiFromDirectiveObjectArguments,
+  buildApiFromDirectiveArguments
+} = exportedForTesting;
 
 function buildNameNode(name: string): NameNode {
   return {
     kind: Kind.NAME,
-    value: name,
-  }
+    value: name
+  };
 }
 
 function buildConstArgumentNodes(args: Record<string, string>): ConstArgumentNode[] {
@@ -30,48 +33,48 @@ function buildConstArgumentNodes(args: Record<string, string>): ConstArgumentNod
     ([argName, argValue]): ConstArgumentNode => ({
       kind: Kind.ARGUMENT,
       name: buildNameNode(argName),
-      value: parseConstValue(argValue),
-    }),
-  )
+      value: parseConstValue(argValue)
+    })
+  );
 }
 
 function buildConstDirectiveNodes(name: string, args: Record<string, string>): ConstDirectiveNode {
   return {
     kind: Kind.DIRECTIVE,
     name: buildNameNode(name),
-    arguments: buildConstArgumentNodes(args),
-  }
+    arguments: buildConstArgumentNodes(args)
+  };
 }
 
 describe('format directive config', () => {
   describe('formatDirectiveObjectArguments', () => {
     const cases: {
-      name: string
-      arg: DirectiveObjectArguments
-      want: FormattedDirectiveObjectArguments
+      name: string;
+      arg: DirectiveObjectArguments;
+      want: FormattedDirectiveObjectArguments;
     }[] = [
       {
         name: 'normal',
         arg: {
           uri: 'url',
-          email: 'email',
+          email: 'email'
         },
         want: {
           uri: ['url', '$2'],
-          email: ['email', '$2'],
-        },
+          email: ['email', '$2']
+        }
       },
       {
         name: 'contains array',
         arg: {
           startWith: ['matches', '/^$2/'],
-          email: 'email',
+          email: 'email'
         },
         want: {
           startWith: ['matches', '/^$2/'],
-          email: ['email', '$2'],
-        },
-      },
+          email: ['email', '$2']
+        }
+      }
     ];
     for (const tc of cases) {
       it(tc.name, () => {
@@ -83,64 +86,64 @@ describe('format directive config', () => {
 
   describe('formatDirectiveConfig', () => {
     const cases: {
-      name: string
-      arg: DirectiveConfig
-      want: FormattedDirectiveConfig
+      name: string;
+      arg: DirectiveConfig;
+      want: FormattedDirectiveConfig;
     }[] = [
       {
         name: 'normal',
         arg: {
           required: {
-            msg: 'required',
+            msg: 'required'
           },
           constraint: {
             minLength: 'min',
             format: {
               uri: 'url',
-              email: 'email',
-            },
-          },
+              email: 'email'
+            }
+          }
         },
         want: {
           required: {
-            msg: ['required', '$1'],
+            msg: ['required', '$1']
           },
           constraint: {
             minLength: ['min', '$1'],
             format: {
               uri: ['url', '$2'],
-              email: ['email', '$2'],
-            },
-          },
-        },
+              email: ['email', '$2']
+            }
+          }
+        }
       },
       {
         name: 'complex',
         arg: {
           required: {
-            msg: 'required',
+            msg: 'required'
           },
           constraint: {
             startWith: ['matches', '/^$1/g'],
             format: {
               uri: ['url', '$2'],
-              email: 'email',
-            },
-          },
+              email: 'email'
+            }
+          }
         },
         want: {
           required: {
-            msg: ['required', '$1'],
+            msg: ['required', '$1']
           },
           constraint: {
             startWith: ['matches', '/^$1/g'],
             format: {
               uri: ['url', '$2'],
-              email: ['email', '$2'],
-            },
-          },
-        },
-      },
+              email: ['email', '$2']
+            }
+          }
+        }
+      }
     ];
     for (const tc of cases) {
       it(tc.name, () => {
@@ -152,141 +155,141 @@ describe('format directive config', () => {
 
   describe('applyArgToApiSchemaTemplate', () => {
     const cases: {
-      name: string
+      name: string;
       args: {
-        template: string
-        apiArgs: any[]
-      }
-      want: string
+        template: string;
+        apiArgs: any[];
+      };
+      want: string;
     }[] = [
       {
         name: 'string',
         args: {
           template: '$1',
-          apiArgs: ['hello'],
+          apiArgs: ['hello']
         },
-        want: `"hello"`,
+        want: `"hello"`
       },
       {
         name: 'regexp string',
         args: {
           template: '$1',
-          apiArgs: ['/hello/g'],
+          apiArgs: ['/hello/g']
         },
-        want: `/hello/g`,
+        want: `/hello/g`
       },
       {
         name: 'number',
         args: {
           template: '$1',
-          apiArgs: [10],
+          apiArgs: [10]
         },
-        want: '10',
+        want: '10'
       },
       {
         name: 'boolean',
         args: {
           template: '$1',
-          apiArgs: [true],
+          apiArgs: [true]
         },
-        want: 'true',
+        want: 'true'
       },
       {
         name: 'eval number',
         args: {
           template: '$1',
-          apiArgs: ['10 + 1'],
+          apiArgs: ['10 + 1']
         },
-        want: '11',
+        want: '11'
       },
       {
         name: 'eval boolean',
         args: {
           template: '$1',
-          apiArgs: ['!true'],
+          apiArgs: ['!true']
         },
-        want: 'false',
+        want: 'false'
       },
       {
         name: 'eval template with number',
         args: {
           template: '$1 + 1',
-          apiArgs: [10],
+          apiArgs: [10]
         },
-        want: '11',
+        want: '11'
       },
       {
         name: 'eval template with boolean',
         args: {
           template: '$1 && false',
-          apiArgs: [true],
+          apiArgs: [true]
         },
-        want: 'false',
+        want: 'false'
       },
       {
         name: 'array',
         args: {
           template: '$1',
-          apiArgs: [['hello', 'world']],
+          apiArgs: [['hello', 'world']]
         },
-        want: `"hello","world"`,
+        want: `"hello","world"`
       },
       {
         name: 'object',
         args: {
           template: '$1',
-          apiArgs: [{ hello: 'world' }],
+          apiArgs: [{ hello: 'world' }]
         },
-        want: `{"hello":"world"}`,
+        want: `{"hello":"world"}`
       },
       {
         name: 'undefined',
         args: {
           template: '$1',
-          apiArgs: ['undefined'],
+          apiArgs: ['undefined']
         },
-        want: 'undefined',
+        want: 'undefined'
       },
       {
         name: 'null',
         args: {
           template: '$1',
-          apiArgs: ['null'],
+          apiArgs: ['null']
         },
-        want: 'null',
+        want: 'null'
       },
       {
         name: 'multiple',
         args: {
           template: '^$1|$2',
-          apiArgs: ['hello', 'world'],
+          apiArgs: ['hello', 'world']
         },
-        want: `"^hello|world"`,
+        want: `"^hello|world"`
       },
       {
         name: 'use only $2',
         args: {
           template: '$2$',
-          apiArgs: ['hello', 'world'],
+          apiArgs: ['hello', 'world']
         },
-        want: `"world$"`,
+        want: `"world$"`
       },
       {
         name: 'does not match all',
         args: {
           template: '^$1',
-          apiArgs: [],
+          apiArgs: []
         },
-        want: `"^"`,
+        want: `"^"`
       },
       {
         name: 'if does not exists index',
         args: {
           template: '$1 $2 $3',
-          apiArgs: ['hello', 'world'],
+          apiArgs: ['hello', 'world']
         },
-        want: `"hello world "`,
-      },
+        want: `"hello world "`
+      }
     ];
     for (const tc of cases) {
       it(tc.name, () => {
@@ -299,43 +302,43 @@ describe('format directive config', () => {
 
   describe('buildApiFromDirectiveObjectArguments', () => {
     const cases: {
-      name: string
+      name: string;
       args: {
-        config: FormattedDirectiveObjectArguments
-        argValue: ConstValueNode
-      }
-      want: string
+        config: FormattedDirectiveObjectArguments;
+        argValue: ConstValueNode;
+      };
+      want: string;
     }[] = [
       {
         name: 'contains in config',
         args: {
           config: {
-            uri: ['url', '$2'],
+            uri: ['url', '$2']
           },
-          argValue: parseConstValue(`"uri"`),
+          argValue: parseConstValue(`"uri"`)
         },
-        want: `.url()`,
+        want: `.url()`
       },
       {
         name: 'does not contains in config',
         args: {
           config: {
-            email: ['email', '$2'],
+            email: ['email', '$2']
           },
-          argValue: parseConstValue(`"uri"`),
+          argValue: parseConstValue(`"uri"`)
         },
-        want: ``,
+        want: ``
       },
       {
         name: 'const value does not string type',
         args: {
           config: {
-            email: ['email', '$2'],
+            email: ['email', '$2']
           },
-          argValue: parseConstValue(`123`),
+          argValue: parseConstValue(`123`)
         },
-        want: ``,
-      },
+        want: ``
+      }
     ];
     for (const tc of cases) {
       it(tc.name, () => {
@@ -348,153 +351,153 @@ describe('format directive config', () => {
 
   describe('buildApiFromDirectiveArguments', () => {
     const cases: {
-      name: string
+      name: string;
       args: {
-        config: FormattedDirectiveArguments
-        args: ReadonlyArray<ConstArgumentNode>
-      }
-      want: string
+        config: FormattedDirectiveArguments;
+        args: ReadonlyArray<ConstArgumentNode>;
+      };
+      want: string;
     }[] = [
       {
         name: 'string',
         args: {
           config: {
-            msg: ['required', '$1'],
+            msg: ['required', '$1']
           },
           args: buildConstArgumentNodes({
-            msg: `"hello"`,
-          }),
+            msg: `"hello"`
+          })
         },
-        want: `.required("hello")`,
+        want: `.required("hello")`
       },
       {
         name: 'string with additional stuff',
         args: {
           config: {
-            startWith: ['matched', '^$1'],
+            startWith: ['matched', '^$1']
           },
           args: buildConstArgumentNodes({
-            startWith: `"hello"`,
-          }),
+            startWith: `"hello"`
+          })
         },
-        want: `.matched("^hello")`,
+        want: `.matched("^hello")`
       },
       {
         name: 'number',
         args: {
           config: {
-            minLength: ['min', '$1'],
+            minLength: ['min', '$1']
           },
           args: buildConstArgumentNodes({
-            minLength: `1`,
-          }),
+            minLength: `1`
+          })
         },
-        want: `.min(1)`,
+        want: `.min(1)`
       },
       {
         name: 'boolean',
         args: {
           config: {
             // @strict(enabled: true)
-            enabled: ['strict', '$1'],
+            enabled: ['strict', '$1']
           },
           args: buildConstArgumentNodes({
-            enabled: `true`,
-          }),
+            enabled: `true`
+          })
         },
-        want: `.strict(true)`,
+        want: `.strict(true)`
       },
       {
         name: 'list',
         args: {
           config: {
-            minLength: ['min', '$1', '$2'],
+            minLength: ['min', '$1', '$2']
           },
           args: buildConstArgumentNodes({
-            minLength: `[1, "message"]`,
-          }),
+            minLength: `[1, "message"]`
+          })
         },
-        want: `.min(1, "message")`,
+        want: `.min(1, "message")`
       },
       {
         name: 'object in list',
         args: {
           config: {
-            matches: ['matches', '$1', '$2'],
+            matches: ['matches', '$1', '$2']
           },
           args: buildConstArgumentNodes({
-            matches: `["hello", {message:"message", excludeEmptyString:true}]`,
-          }),
+            matches: `["hello", {message:"message", excludeEmptyString:true}]`
+          })
         },
-        want: `.matches("hello", {"message":"message","excludeEmptyString":true})`,
+        want: `.matches("hello", {"message":"message","excludeEmptyString":true})`
       },
       {
         name: 'two arguments but matched to first argument',
         args: {
           config: {
-            msg: ['required', '$1'],
+            msg: ['required', '$1']
           },
           args: buildConstArgumentNodes({
             msg: `"hello"`,
-            msg2: `"world"`,
-          }),
+            msg2: `"world"`
+          })
         },
-        want: `.required("hello")`,
+        want: `.required("hello")`
       },
       {
         name: 'two arguments but matched to second argument',
         args: {
           config: {
-            msg2: ['required', '$1'],
+            msg2: ['required', '$1']
           },
           args: buildConstArgumentNodes({
             msg: `"hello"`,
-            msg2: `"world"`,
-          }),
+            msg2: `"world"`
+          })
         },
-        want: `.required("world")`,
+        want: `.required("world")`
       },
       {
         name: 'two arguments matched all',
         args: {
           config: {
             required: ['required', '$1'],
-            minLength: ['min', '$1'],
+            minLength: ['min', '$1']
           },
           args: buildConstArgumentNodes({
             required: `"message"`,
-            minLength: `1`,
-          }),
+            minLength: `1`
+          })
         },
-        want: `.required("message").min(1)`,
+        want: `.required("message").min(1)`
       },
       {
         name: 'argument matches validation schema api',
         args: {
           config: {
             format: {
-              uri: ['url'],
-            },
+              uri: ['url']
+            }
           },
           args: buildConstArgumentNodes({
-            format: `"uri"`,
-          }),
+            format: `"uri"`
+          })
         },
-        want: `.url()`,
+        want: `.url()`
       },
       {
-        name: 'argument matched argument but doesn\'t match api',
+        name: "argument matched argument but doesn't match api",
         args: {
           config: {
             format: {
-              uri: ['url'],
-            },
+              uri: ['url']
+            }
           },
           args: buildConstArgumentNodes({
-            format: `"uuid"`,
-          }),
+            format: `"uuid"`
+          })
         },
-        want: ``,
+        want: ``
       },
       {
         name: 'complex',
@@ -502,15 +505,15 @@ describe('format directive config', () => {
           config: {
             required: ['required', '$1'],
             format: {
-              uri: ['url'],
-            },
+              uri: ['url']
+            }
           },
           args: buildConstArgumentNodes({
             required: `"message"`,
-            format: `"uri"`,
-          }),
+            format: `"uri"`
+          })
         },
-        want: `.required("message").url()`,
+        want: `.required("message").url()`
       },
       {
         name: 'complex 2',
@@ -518,16 +521,16 @@ describe('format directive config', () => {
           config: {
             required: ['required', '$1'],
             format: {
-              uri: ['url'],
-            },
+              uri: ['url']
+            }
           },
           args: buildConstArgumentNodes({
             required: `"message"`,
-            format: `"uuid"`,
-          }),
+            format: `"uuid"`
+          })
         },
-        want: `.required("message")`,
-      },
+        want: `.required("message")`
+      }
     ];
     for (const tc of cases) {
       it(tc.name, () => {
@@ -540,41 +543,41 @@ describe('format directive config', () => {
 
   describe('buildApi', () => {
     const cases: {
-      name: string
+      name: string;
       args: {
-        config: FormattedDirectiveConfig
-        args: ReadonlyArray<ConstDirectiveNode>
-      }
-      want: string
+        config: FormattedDirectiveConfig;
+        args: ReadonlyArray<ConstDirectiveNode>;
+      };
+      want: string;
     }[] = [
       {
         name: 'valid',
         args: {
           config: {
             required: {
-              msg: ['required', '$1'],
+              msg: ['required', '$1']
             },
             constraint: {
               minLength: ['min', '$1'],
               format: {
                 uri: ['url'],
-                email: ['email'],
-              },
-            },
+                email: ['email']
+              }
+            }
           },
           args: [
             // @required(msg: "message")
             buildConstDirectiveNodes('required', {
-              msg: `"message"`,
+              msg: `"message"`
             }),
             // @constraint(minLength: 100, format: "email")
             buildConstDirectiveNodes('constraint', {
               minLength: `100`,
-              format: `"email"`,
-            }),
-          ],
+              format: `"email"`
+            })
+          ]
         },
-        want: `.required("message").min(100).email()`,
+        want: `.required("message").min(100).email()`
       },
       {
         name: 'enum',
@@ -582,19 +585,19 @@ describe('format directive config', () => {
           config: {
             constraint: {
               format: {
-                URI: ['uri'],
-              },
-            },
+                URI: ['uri']
+              }
+            }
           },
           args: [
             // @constraint(format: EMAIL)
             buildConstDirectiveNodes('constraint', {
-              format: 'URI',
-            }),
-          ],
+              format: 'URI'
+            })
+          ]
         },
-        want: `.uri()`,
-      },
+        want: `.uri()`
+      }
     ];
     for (const tc of cases) {
       it(tc.name, () => {
@@ -607,12 +610,12 @@ describe('format directive config', () => {
 
   describe('buildApiForValibot', () => {
     const cases: {
-      name: string
+      name: string;
       args: {
-        config: FormattedDirectiveConfig
-        args: ReadonlyArray<ConstDirectiveNode>
-      }
-      want: string[]
+        config: FormattedDirectiveConfig;
+        args: ReadonlyArray<ConstDirectiveNode>;
+      };
+      want: string[];
     }[] = [
       {
         name: 'valid',
@@ -622,19 +625,19 @@ describe('format directive config', () => {
               minLength: ['minLength', '$1'],
               format: {
                 uri: ['url'],
-                email: ['email'],
-              },
-            },
+                email: ['email']
+              }
+            }
           },
           args: [
             // @constraint(minLength: 100, format: "email")
             buildConstDirectiveNodes('constraint', {
               minLength: `100`,
-              format: `"email"`,
-            }),
-          ],
+              format: `"email"`
+            })
+          ]
         },
-        want: [`v.minLength(100)`, `v.email()`],
+        want: [`v.minLength(100)`, `v.email()`]
       },
       {
         name: 'enum',
@@ -642,19 +645,19 @@ describe('format directive config', () => {
           config: {
             constraint: {
               format: {
-                URI: ['uri'],
-              },
-            },
+                URI: ['uri']
+              }
+            }
           },
           args: [
             // @constraint(format: EMAIL)
             buildConstDirectiveNodes('constraint', {
-              format: 'URI',
-            }),
-          ],
+              format: 'URI'
+            })
+          ]
         },
-        want: [`v.uri()`],
-      },
+        want: [`v.uri()`]
+      }
     ];
     for (const tc of cases) {
       it(tc.name, () => {
